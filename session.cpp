@@ -5,9 +5,9 @@ Session::Session() {
 }
 
 void Session::outputContents() {
-  for (std::vector<std::string>::const_iterator i = front.begin(), z = back.begin(); i != front.end(); ++i, ++z) {
+  for (auto i = front.begin(), z = back.begin(); i != front.end(); ++i, ++z) {
 	std::string frTmp = *i, bkTmp = *z;
-	mvprintw(std::distance<std::vector<std::string>::const_iterator>(front.begin(), i), 1, "%s, %s", frTmp.c_str(), bkTmp.c_str());
+	mvprintw(std::distance<decltype(i)>(front.begin(), i), 1, "%s, %s", frTmp.c_str(), bkTmp.c_str());
   }
 }
 
