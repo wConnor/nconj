@@ -4,16 +4,19 @@
 int main(int argc, char *argv[])
 {
   initscr();
-  cbreak();
-  noecho();
+  nocbreak();
+  echo();
+  //raw();  
+  
   std::vector<std::string> front = {"Hallo", "Salut", "Français"};
   std::vector<std::string> back = {"Hello", "Hi", "French"};
   Session *session = new Session();
   session->setFront(front);
   session->setBack(back);
-  session->outputContents();
 
-  
+  refresh();
+  session->begin();
+	
   getch();
   endwin();
 
