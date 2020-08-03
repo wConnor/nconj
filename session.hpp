@@ -7,9 +7,19 @@
 
 class Session
 {
+private:
+  std::vector<std::string> front;
+  std::vector<std::string> back;
+  
 public:
-  Session(const std::vector<std::string> &words);
+  Session();
+  void outputContents();
+  void setFront(const std::vector<std::string> &words);
+  void setBack(const std::vector<std::string> &words);
+  std::vector<std::string> getFront();
+  std::vector<std::string> getBack();
   virtual ~Session();
+  
 };
 
 #endif
