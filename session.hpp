@@ -4,6 +4,8 @@
 #include <ncurses.h>
 #include <vector>
 #include <string>
+#include <memory>
+#include <algorithm>
 
 class Session
 {
@@ -13,6 +15,7 @@ private:
   
 public:
   Session();
+  void begin();
   void outputContents();
   void setFront(const std::vector<std::string> &words);
   void setBack(const std::vector<std::string> &words);
