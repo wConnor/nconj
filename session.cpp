@@ -5,7 +5,18 @@ Session::Session() {
 }
 
 void Session::begin() {
+  /* coordinates start from point 0,0 which is the top left corner of the
+	 terminal
+	 coordinates are in the form of y, x as opposed to the more common x, y
+	 y is known as the rank (row)
+	 x is known as the file (column)
+	 coordinate arithmetic applies; ymax/2 brings the cursor to
+	 mid.
+  */
+  echo();
   int score = 0;
+  int maxy, maxx;
+  getmaxyx(stdscr, maxy, maxx);
   for (auto i = front.begin(), z = back.begin(); i != front.end(); ++i, ++z) {
 	std::string frTmp = *i, bkTmp = *z;
 	std::string input = "";
@@ -22,17 +33,19 @@ void Session::begin() {
 
 	clear();
 	attron(A_BOLD);
+	// -10 necessary to bring the text more towards the center.
 	if (input == bkTmp) {
 	  score += 1;
-	  printw("Correct! (Score: %d / %d)", score, front.size());
+	  mvprintw(0, maxx/2-10, "Correct! (Score: %d / %d)", score, front.size());
 	  attroff(A_BOLD);
 	} else {
-      printw("Incorrect. (Score %d / %d)", score, front.size());
+      mvprintw(0, maxx/2-10, "Incorrect. (Score %d / %d)", score, front.size());
 	  attroff(A_BOLD);
-	  printw("Answer: %s. You input: %s", bkTmp.c_str(), input.c_str());
+	  mvprintw(1, maxx/2-10, "Answer: %s. You input: %s", bkTmp.c_str(), input.c_str());
 	}
 
 	refresh();
+	echo();
   }
 }
 
