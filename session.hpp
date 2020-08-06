@@ -14,8 +14,8 @@ private:
 public:
   Session();
   void begin(const std::vector<std::string> &front, const std::vector<std::string> &back);
+  void results(const int &score, const int &total, const std::vector<std::string> incorrect);
   virtual ~Session();
-  
 };
 
 #endif
