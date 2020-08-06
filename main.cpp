@@ -5,12 +5,12 @@ int main(int argc, char *argv[])
 {
   initscr();
   cbreak();
-  noecho();
   start_color();
+
   Menu *menu = new Menu();
   
-  std::vector<std::string> front = {"hello"};
-  std::vector<std::string> back = {"hi"};
+  std::vector<std::string> front = {"oneF", "twoF", "threeF"};
+  std::vector<std::string> back = {"oneB", "twoB", "threeB"};
 
   while (1) {
 	if (menu->print() >= 0) {
