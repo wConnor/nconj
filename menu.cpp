@@ -4,6 +4,9 @@
 Menu::Menu() {}
 
 int Menu::print() { 
+  clear();
+  noecho();
+  curs_set(0);
   int yMax, xMax;
   int keyEnd = 0;
   std::unique_ptr<int> keyPtr = std::make_unique<int>(keyEnd);
@@ -13,9 +16,21 @@ int Menu::print() {
   std::vector<std::string> front = {"Hallo", "Salut", "Français"};
   std::vector<std::string> back = {"Hello", "Hi", "French"};
 
+  /* colour pairs for the windows
+	 ID1 = menuWin
+	 ID2 = keysWin
+  */
+  init_pair(1, COLOR_CYAN, COLOR_BLACK);
+  init_pair(2, COLOR_BLACK, COLOR_CYAN);
+  wbkgd(menuWin, COLOR_PAIR(1));
+  wbkgd(keysWin, COLOR_PAIR(2));
+  
   // ensures contents in memory are written to the framebuffer.
   refresh();
   wrefresh(menuWin);
+  wrefresh(keysWin);
+
+  refresh();
   wrefresh(keysWin);
   
   // shows the user the usable keys at the bottom of the screen
@@ -23,16 +38,8 @@ int Menu::print() {
   addOption(" q ", "Quit ", keyPtr, keysWin);
   wrefresh(keysWin);
 
-  /* colour pairs for the windows
-	 ID1 = menuWin
-	 ID2 = keysWin
-  */
-  init_pair(1, COLOR_CYAN, COLOR_BLUE);
-  init_pair(2, COLOR_BLACK, COLOR_CYAN);
-
   keypad(menuWin, true);
 
-  wbkgd(keysWin, COLOR_PAIR(2));
   wrefresh(menuWin);
   wrefresh(keysWin);
 
@@ -87,8 +94,6 @@ void Menu::addOption(std::string key, std::string option,
   wattroff(win, A_REVERSE);
   mvwprintw(win, 0, *length, option.c_str());
   *length += option.length() + 1;
-  wrefresh(win);
-  refresh();
 }
 
 
