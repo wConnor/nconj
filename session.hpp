@@ -10,17 +10,10 @@
 class Session
 {
 private:
-  std::vector<std::string> front;
-  std::vector<std::string> back;
   
 public:
   Session();
-  void begin();
-  void outputContents();
-  void setFront(const std::vector<std::string> &words);
-  void setBack(const std::vector<std::string> &words);
-  std::vector<std::string> getFront();
-  std::vector<std::string> getBack();
+  void begin(const std::vector<std::string> &front, const std::vector<std::string> &back);
   virtual ~Session();
   
 };

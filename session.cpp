@@ -1,10 +1,9 @@
 #include "session.hpp"
 
-Session::Session() {
-  
-}
+Session::Session() {}
 
-void Session::begin() {
+void Session::begin(const std::vector<std::string> &front, const std::vector<std::string> &back)
+{
   /* coordinates start from point 0,0 which is the top left corner of the
 	 terminal
 	 coordinates are in the form of y, x as opposed to the more common x, y
@@ -13,6 +12,7 @@ void Session::begin() {
 	 coordinate arithmetic applies; ymax/2 brings the cursor to
 	 mid.
   */
+  clear();
   echo();
   int score = 0;
   int maxy, maxx;
@@ -46,25 +46,10 @@ void Session::begin() {
 
 	refresh();
 	echo();
-  }
+  } 
 }
 
-void Session::outputContents() {
-  
-}
-
-void Session::setFront(const std::vector<std::string> &words){
-  front = words;
-}
-
-void Session::setBack(const std::vector<std::string> &words){
-  back = words;
-}
-
-std::vector<std::string> Session::getFront() { return front; }
-
-std::vector<std::string> Session::getBack() { return back; }
-
-Session::~Session() {
+Session::~Session()
+{
   
 }
