@@ -8,30 +8,32 @@ int Menu::print() {
   noecho();
   curs_set(0);
   int yMax, xMax;
-  int keyEnd = 0;
+  int keyEnd = 0, sesLength = 0;
   std::unique_ptr<int> keyPtr = std::make_unique<int>(keyEnd);
+  std::unique_ptr<int> sesPtr = std::make_unique<int>(sesLength);
   getmaxyx(stdscr, yMax, xMax);
-  WINDOW *menuWin = newwin(yMax-1, 20, 0, 0);
+  WINDOW *menuWin = newwin(yMax-2, 20, 1, 0);
   WINDOW *keysWin = newwin(1, xMax, yMax-1, 0);
+  WINDOW *barWin = newwin(1, xMax, 0, 0);
   std::vector<std::string> front = {"Hallo", "Salut", "Français"};
   std::vector<std::string> back = {"Hello", "Hi", "French"};
 
   /* colour pairs for the windows
-	 ID1 = menuWin
-	 ID2 = keysWin
+         ID1 = menuWin
+         ID2 = keysWin
+		 ID3 = barWin
   */
   init_pair(1, COLOR_CYAN, COLOR_BLACK);
   init_pair(2, COLOR_BLACK, COLOR_CYAN);
   wbkgd(menuWin, COLOR_PAIR(1));
   wbkgd(keysWin, COLOR_PAIR(2));
-  
+  wbkgd(barWin, COLOR_PAIR(2));
+
   // ensures contents in memory are written to the framebuffer.
   refresh();
   wrefresh(menuWin);
   wrefresh(keysWin);
-
-  refresh();
-  wrefresh(keysWin);
+  wrefresh(barWin);
   
   // shows the user the usable keys at the bottom of the screen
   addOption(" ENTER ", "Select Option ", keyPtr, keysWin);
@@ -39,9 +41,13 @@ int Menu::print() {
   wrefresh(keysWin);
 
   keypad(menuWin, true);
+  box(menuWin, 0, 0);
+  whline(menuWin, ' ', 0);
+  mvwprintw(barWin, 0, 1, "nconj");
 
   wrefresh(menuWin);
   wrefresh(keysWin);
+  wrefresh(barWin);
 
   std::vector<std::string> menuOptions = {"Deck 1", "Deck 2", "Deck 3"};
 
@@ -78,6 +84,14 @@ int Menu::print() {
 	if (choice == 'q') {
 	  break;
 	} else if (choice == 10) {
+	  wclear(menuWin);
+	  wclear(keysWin);
+	  wrefresh(menuWin);
+	  wrefresh(keysWin);
+	  mvwprintw(barWin, 0, 1, "nconj session");
+	  addOption(" F1 ", "Skip", sesPtr, keysWin);
+	  wrefresh(keysWin);
+	  wrefresh(barWin);
 	  return highlight;
 	}
   }

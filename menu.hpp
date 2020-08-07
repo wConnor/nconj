@@ -14,6 +14,4 @@ public:
   virtual ~Menu();
 };
 
-
-
 #endif
