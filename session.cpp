@@ -2,13 +2,14 @@
 
 Session::Session() {}
 
-void Session::begin(const std::vector<std::string> &front, const std::vector<std::string> &back)
+void Session::begin(const std::vector<std::string> &front, const std::vector<std::string> &back, const std::string &infinitive)
 {
   curs_set(1);
-  clear();
   echo();
   keypad(stdscr, TRUE);
-  
+
+  raw();
+
   /* coordinates start from point 0,0 which is the top left corner of the
 	 terminal
 	 coordinates are in the form of y, x as opposed to the more common x, y
@@ -18,46 +19,61 @@ void Session::begin(const std::vector<std::string> &front, const std::vector<std
 	 mid.
   */  
   int score = 0;
+  int ctr = 3;
   int maxy, maxx;
   std::vector<std::string> incorrect = {};  
   getmaxyx(stdscr, maxy, maxx);
+  WINDOW *checkWin = newwin(2, maxx, 1, 0);
   for (auto i = front.begin(), z = back.begin(); i != front.end(); ++i, ++z) {
 	std::string frTmp = *i, bkTmp = *z;
 	std::string input = "";
-	mvprintw(1, 0, "Translate: %s", frTmp.c_str());
+	std::string message = frTmp + " + _________________ (" + infinitive + ")";
+	mvprintw(ctr, 0, message.c_str());
 	refresh();
-	
-	move(2,0);
 
+	// moves cursor to the start of the underscores
+	move(ctr, frTmp.size() + 3);
+	++ctr;
+
+	int curX, curY;
+	getyx(stdscr, curX, curY);
+	/* takes in the input from the user. if the input is NOT
+	   a key that deletes a character, then it's appended to the
+	   std::string. else,  it'll delete the last character that
+	   was input.
+	*/
 	int c = getch();        
 	while (c != '\n') {
-	  if (c == KEY_BACKSPACE || c == KEY_DC || c == 127) {
+	  if ((c == KEY_BACKSPACE || c == KEY_DC || c == 127) && input.size() != 0) {
 		input.pop_back();
+		delch();            
+	  } else if (c == KEY_F(1)) {
+		break;
 	  } else {
 		input.push_back(c);
-	  }          
+	  }
 	  c = getch();
 	}
 
-	clear();
-	attron(A_BOLD);
-
+	wclear(checkWin);
+	wattron(checkWin, A_BOLD);
+	
 	/* checks whether or not the input that the user
 	   has typed is equal to that which is expected, i.e.
 	   it's on in the 'back' std::vector.
 	*/
 	if (input == bkTmp) {
 	  score += 1;
-	  mvprintw(0, maxx/2-10, "Correct! (Score: %d / %d)", score, front.size());
-	  attroff(A_BOLD);
+	  mvwprintw(checkWin, 0, maxx/2-10, "Correct! (Score: %d / %d)", score, front.size());
+	  wattroff(checkWin, A_BOLD);
 	} else {
 	  incorrect.push_back(frTmp);
 	  incorrect.push_back(bkTmp);
-      mvprintw(0, maxx/2-10, "Incorrect. (Score %d / %d)", score, front.size());
-	  attroff(A_BOLD);
-	  mvprintw(1, maxx/2-10, "Answer: %s. You input: %s", bkTmp.c_str(), input.c_str());
+      mvwprintw(checkWin, 0, maxx/2-10, "Incorrect. (Score %d / %d)", score, front.size());
+	  wattroff(checkWin, A_BOLD);
+	  mvwprintw(checkWin, 1, maxx/2-10, "Answer: %s. You input: %s", bkTmp.c_str(), input.c_str());
 	}
-	refresh();
+	wrefresh(checkWin);
   }
   results(score, front.size(), incorrect);
 }
