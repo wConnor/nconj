@@ -2,6 +2,7 @@
 #define MENU_HPP
 #include <memory>
 #include <ncurses.h>
+#include <string>
 
 class Menu
 {

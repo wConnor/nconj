@@ -15,8 +15,6 @@ int Menu::print() {
   WINDOW *menuWin = newwin(yMax-2, 20, 1, 0);
   WINDOW *keysWin = newwin(1, xMax, yMax-1, 0);
   WINDOW *barWin = newwin(1, xMax, 0, 0);
-  std::vector<std::string> front = {"Hallo", "Salut", "Français"};
-  std::vector<std::string> back = {"Hello", "Hi", "French"};
 
   /* colour pairs for the windows
          ID1 = menuWin
