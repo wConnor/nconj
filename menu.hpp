@@ -3,15 +3,15 @@
 #include <memory>
 #include <ncurses.h>
 #include <string>
+#include <vector>
 
-class Menu
-{
+class Menu {
 private:
-
 public:
   Menu();
-  int print();
-  void addOption(std::string key, std::string option, std::unique_ptr<int> &length, WINDOW *win);
+  int print(std::vector<std::string> menuOptions);
+  void addOption(std::string key, std::string option,
+                 std::unique_ptr<int> &length, WINDOW *win);
   virtual ~Menu();
 };
 
