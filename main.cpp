@@ -4,8 +4,6 @@
 #include <filesystem>
 
 int main(int argc, char *argv[]) {
-  Deck *deck = new Deck();
-
   /* checks to see whether or not the data directory
          exists and, if it does not, creates both it and
          the decks.ncj file with some example french
@@ -13,10 +11,14 @@ int main(int argc, char *argv[]) {
   */
   if (!std::filesystem::exists("./decks/")) {
     std::filesystem::create_directory("./decks/");
+    std::unique_ptr<Deck> exDeck1 = std::make_unique<Deck>("être");
+    std::unique_ptr<Deck> exDeck2 = std::make_unique<Deck>("connaître");
 
-    deck->create("être",
-                 std::vector<std::string>{"je,tu,il/elle,nous,vous,ils/elles"},
-                 std::vector<std::string>{"suis,es,est,sommes,êtes,sont"});
+    exDeck1->create("je,tu,il/elle,nous,vous,ils/elles",
+                    "suis,es,est,sommes,êtes,sont");
+    exDeck2->create(
+        "je,tu,il/elle,nous,vous,ils/elles",
+        "connais,connais,connaît,connaissons,connaissez,connaissent");
   }
 
   std::vector<std::string> availableDecks = {};
@@ -34,9 +36,6 @@ int main(int argc, char *argv[]) {
     availableDecks.push_back(tempName);
   }
 
-  deck->setFile("être");
-  deck->readContents();
-
   initscr();
   cbreak();
   start_color();
@@ -46,9 +45,11 @@ int main(int argc, char *argv[]) {
   while (1) {
     selectedDeck = menu->print(availableDecks);
     if (selectedDeck >= 0) {
-      Session *session = new Session();
+      std::unique_ptr<Deck> deck =
+          std::make_unique<Deck>(availableDecks[selectedDeck]);
+      std::unique_ptr<Session> session = std::make_unique<Session>();
+      deck->readContents();
       session->begin(deck->getFront(), deck->getBack(), deck->getName());
-      delete session;
     } else {
       break;
     }
