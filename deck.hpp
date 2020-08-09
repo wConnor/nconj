@@ -17,11 +17,9 @@ private:
   std::vector<std::string> back = {};
 
 public:
-  Deck();
-  void create(const std::string &name,
-              const std::vector<std::string> &userFront,
-              const std::vector<std::string> &userBack);
-  void setFile(const std::string &name);
+  Deck(const std::string &name);
+  void create(const std::string &front,
+              const std::string &back);
   void readContents();
   std::string getName();
   std::vector<std::string> getFront();

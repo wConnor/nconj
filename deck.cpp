@@ -1,37 +1,19 @@
 #include "deck.hpp"
 
-Deck::Deck() {}
+Deck::Deck(const std::string &name) { deckName = name; }
 
-void Deck::create(const std::string &name,
-                  const std::vector<std::string> &userFront,
-                  const std::vector<std::string> &userBack) {
-  fileName = "./decks/" + name + ".ncj";
+void Deck::create(const std::string &front, const std::string &back) {
+  std::ofstream file("./decks/" + deckName + ".ncj");
 
-  std::ofstream file(fileName);
-  file << name;
-
-  file << std::endl;
-
-  for (const auto &e : userFront)
-    file << e;
-
-  file << std::endl;
-
-  for (const auto &v : userBack)
-    file << v;
-
-  file << std::endl;
+  file << deckName << std::endl;
+  file << front << std::endl;
+  file << back << std::endl;
 
   file.close();
 }
 
-void Deck::setFile(const std::string &name) {
-  deckName = name;
-  fileName = "./decks/" + deckName + ".ncj";
-}
-
 void Deck::readContents() {
-  std::fstream file(fileName);
+  std::fstream file("./decks/" + deckName + ".ncj");
 
   std::string tempName = "";
   std::string tempFront = "";
@@ -43,6 +25,8 @@ void Deck::readContents() {
     std::getline(file, tempBack, '\n');
   }
 
+  file.close();
+
   std::stringstream frontStream(tempFront);
   std::stringstream backStream(tempBack);
 
@@ -53,6 +37,7 @@ void Deck::readContents() {
     front.push_back(frontSub);
     back.push_back(backSub);
   }
+
   unsigned int randSeed =
       std::chrono::system_clock::now().time_since_epoch().count();
 
