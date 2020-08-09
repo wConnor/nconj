@@ -21,7 +21,17 @@ int main(int argc, char *argv[]) {
 
   std::vector<std::string> availableDecks = {};
   for (const auto &e : std::filesystem::directory_iterator("./decks/")) {
-    availableDecks.push_back(e.path());
+    std::string tempName = "";
+    std::filesystem::path tempPath = e.path();
+    tempName = tempPath.string();
+
+    auto start = tempName.find_last_of('/');
+    tempName.erase(0, start + 1);
+
+    auto end = tempName.find_last_of('.');
+    tempName.erase(end, tempName.size() - 1);
+
+    availableDecks.push_back(tempName);
   }
 
   deck->setFile("être");
