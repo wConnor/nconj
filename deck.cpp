@@ -32,6 +32,7 @@ void Deck::setFile(const std::string &name) {
 
 void Deck::readContents() {
   std::fstream file(fileName);
+
   std::string tempName = "";
   std::string tempFront = "";
   std::string tempBack = "";
@@ -52,6 +53,12 @@ void Deck::readContents() {
     front.push_back(frontSub);
     back.push_back(backSub);
   }
+  unsigned int randSeed =
+      std::chrono::system_clock::now().time_since_epoch().count();
+
+  std::shuffle(front.begin(), front.end(),
+               std::default_random_engine(randSeed));
+  std::shuffle(back.begin(), back.end(), std::default_random_engine(randSeed));
 }
 
 std::string Deck::getName() { return deckName; }
