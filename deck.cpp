@@ -26,16 +26,18 @@ void Deck::create(const std::string &name,
 }
 
 void Deck::setFile(const std::string &name) {
-  fileName = "./decks/" + name + ".ncj";
+  deckName = name;
+  fileName = "./decks/" + deckName + ".ncj";
 }
 
 void Deck::readContents() {
   std::fstream file(fileName);
+  std::string tempName = "";
   std::string tempFront = "";
   std::string tempBack = "";
 
   while (file.good()) {
-    std::getline(file, name, '\n');
+    std::getline(file, tempName, '\n');
     std::getline(file, tempFront, '\n');
     std::getline(file, tempBack, '\n');
   }
@@ -51,6 +53,8 @@ void Deck::readContents() {
     back.push_back(backSub);
   }
 }
+
+std::string Deck::getName() { return deckName; }
 
 std::vector<std::string> Deck::getFront() { return front; }
 

@@ -9,7 +9,7 @@
 class Deck {
 private:
   std::string fileName = "";
-  std::string name = "";
+  std::string deckName;
   std::vector<std::string> front = {};
   std::vector<std::string> back = {};
 
@@ -20,6 +20,7 @@ public:
               const std::vector<std::string> &userBack);
   void setFile(const std::string &name);
   void readContents();
+  std::string getName();
   std::vector<std::string> getFront();
   std::vector<std::string> getBack();
   virtual ~Deck();
