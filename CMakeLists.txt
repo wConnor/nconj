@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_LIBRARIES "-lncurses -lstdc++fs")
+set(CMAKE_CXX_STANDARD_LIBRARIES "-lncursesw -lstdc++fs")
 project(nconj)
 add_executable(nconj main.cpp session.cpp menu.cpp deck.cpp)
