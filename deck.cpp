@@ -1,5 +1,7 @@
 #include "deck.hpp"
 
+Deck::Deck() {}
+
 Deck::Deck(const std::string &name) { deckName = name; }
 
 void Deck::create(const std::string &front, const std::string &back) {
@@ -45,6 +47,8 @@ void Deck::readContents() {
                std::default_random_engine(randSeed));
   std::shuffle(back.begin(), back.end(), std::default_random_engine(randSeed));
 }
+
+void Deck::setName(const std::string &name) { deckName = name; }
 
 std::string Deck::getName() { return deckName; }
 
