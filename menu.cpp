@@ -171,6 +171,12 @@ int Menu::print(std::vector<std::string> menuOptions) {
           name.pop_back();
           wprintw(addWindow, "_");
           wmove(addWindow, yCur, xCur);
+        } else if ((c == KEY_BACKSPACE || c == KEY_DC || c == 127 ||
+                    c == 263) &&
+                   name.size() == 0) {
+          wmove(addWindow, yCur, xCur);
+          wprintw(addWindow, " ");
+          wrefresh(addWindow);
         } else {
           name.push_back(c);
         }
@@ -240,6 +246,12 @@ int Menu::print(std::vector<std::string> menuOptions) {
             cardInput.pop_back();
             wprintw(addWindow, "_");
             wmove(addWindow, yCur, xCur);
+          } else if ((f == KEY_BACKSPACE || f == KEY_DC || f == 127 ||
+                      f == 263) &&
+                     cardInput.size() == 0) {
+            wmove(addWindow, yCur, xCur);
+            wprintw(addWindow, " ");
+            wrefresh(addWindow);
           } else {
             cardInput.push_back(f);
           }
@@ -262,12 +274,18 @@ int Menu::print(std::vector<std::string> menuOptions) {
             wprintw(addWindow, "_");
             wmove(addWindow, yCur, xCur);
             cardInput.pop_back();
-            delch();
+          } else if ((b == KEY_BACKSPACE || b == KEY_DC || b == 127 ||
+                      b == 263) &&
+                     cardInput.size() == 0) {
+            wmove(addWindow, yCur, xCur);
+            wprintw(addWindow, " ");
+            wrefresh(addWindow);
           } else {
             cardInput.push_back(b);
           }
           b = wgetch(addWindow);
         }
+
         back += cardInput + ",";
 
         cardInput.clear();

@@ -36,19 +36,25 @@ void Session::begin(const std::vector<std::string> &front,
     move(ctr, frTmp.size() + 3);
     ++ctr;
 
-    int curX, curY;
-    getyx(stdscr, curX, curY);
+    int yCur, xCur;
     /* takes in the input from the user. if the input is NOT
        a key that deletes a character, then it's appended to the
        std::string. else,  it'll delete the last character that
        was input.
     */
-    int c = getch();
+    wint_t c = getch();
     while (c != '\n') {
-      if ((c == KEY_BACKSPACE || c == KEY_DC || c == 127) &&
+      getyx(stdscr, yCur, xCur);
+      if ((c == KEY_BACKSPACE || c == KEY_DC || c == 127 || c == 263) &&
           input.size() != 0) {
         input.pop_back();
-        delch();
+        printw("_");
+        move(yCur, xCur);
+      } else if ((c == KEY_BACKSPACE || c == KEY_DC || c == 127 || c == 263) &&
+                 input.size() == 0) {
+        move(yCur, xCur);
+        printw(" ");
+        refresh();
       } else if (c == KEY_F(1)) {
         break;
       } else {
