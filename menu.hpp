@@ -1,9 +1,9 @@
 #ifndef MENU_HPP
 #define MENU_HPP
 #include <memory>
-#include <ncurses.h>
 #include <string>
 #include <vector>
+#include <ncursesw/ncurses.h>
 
 class Menu {
 private:
