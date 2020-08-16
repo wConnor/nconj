@@ -39,13 +39,6 @@ void Deck::readContents() {
     front.push_back(frontSub);
     back.push_back(backSub);
   }
-
-  unsigned int randSeed =
-      std::chrono::system_clock::now().time_since_epoch().count();
-
-  std::shuffle(front.begin(), front.end(),
-               std::default_random_engine(randSeed));
-  std::shuffle(back.begin(), back.end(), std::default_random_engine(randSeed));
 }
 
 void Deck::setName(const std::string &name) { deckName = name; }

@@ -2,9 +2,9 @@
 
 Session::Session() {}
 
-void Session::begin(const std::vector<std::string> &front,
-                    const std::vector<std::string> &back,
-                    const std::string &infinitive) {
+void Session::begin(std::vector<std::string> front,
+                    std::vector<std::string> back,
+                    const std::string &infinitive, const bool &shuffle) {
   curs_set(1);
   echo();
   keypad(stdscr, TRUE);
@@ -12,12 +12,12 @@ void Session::begin(const std::vector<std::string> &front,
   raw();
 
   /* coordinates start from point 0,0 which is the top left corner of the
-         terminal
-         coordinates are in the form of y, x as opposed to the more common x, y
-         y is known as the rank (row)
-         x is known as the file (column)
-         coordinate arithmetic applies; ymax/2 brings the cursor to
-         mid.
+	 terminal
+	 coordinates are in the form of y, x as opposed to the more common x, y
+	 y is known as the rank (row)
+	 x is known as the file (column)
+	 coordinate arithmetic applies; ymax/2 brings the cursor to
+	 mid.
   */
   int score = 0;
   int ctr = 3;
@@ -25,6 +25,19 @@ void Session::begin(const std::vector<std::string> &front,
   std::vector<std::string> incorrect = {};
   getmaxyx(stdscr, maxy, maxx);
   WINDOW *checkWin = newwin(2, maxx, 1, 0);
+
+  /* if the option to shuffle the deck has been
+	 enabled in the menu, then order of the
+	 are shuffled with the same seed, ensuring that
+	 the front card points to the correct back card. */
+  if (shuffle) {	
+	unsigned int randSeed =
+      std::chrono::system_clock::now().time_since_epoch().count();
+	
+	std::shuffle(front.begin(), front.end(), std::default_random_engine(randSeed));
+	std::shuffle(back.begin(), back.end(), std::default_random_engine(randSeed));
+  }
+
   for (auto i = front.begin(), z = back.begin(); i != front.end(); ++i, ++z) {
     std::string frTmp = *i, bkTmp = *z;
     std::string input = "";
@@ -94,7 +107,7 @@ void Session::results(const int &score, const int &total,
   int resYMax, resXMax;
   getmaxyx(stdscr, resYMax, resXMax);
   WINDOW *resultsWin =
-      newwin(15, resXMax / 2 - 10, resYMax / 2 - 10, resXMax / 2 - 35);
+	newwin(15, resXMax / 2 - 10, resYMax / 2 - 10, resXMax / 2 - 35);
   box(resultsWin, 0, 0);
 
   mvwprintw(resultsWin, 0, 1, "Results");
@@ -103,7 +116,7 @@ void Session::results(const int &score, const int &total,
   wattroff(resultsWin, A_BOLD);
 
   std::string message =
-      "You scored: " + std::to_string(score) + " / " + std::to_string(total);
+	"You scored: " + std::to_string(score) + " / " + std::to_string(total);
 
   mvwprintw(resultsWin, 2, 2, message.c_str());
 

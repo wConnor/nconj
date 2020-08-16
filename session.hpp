@@ -3,17 +3,19 @@
 
 #include <algorithm>
 #include <memory>
-#include <ncurses.h>
+#include <ncursesw/ncurses.h>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <random>
 
 class Session {
 private:
 public:
   Session();
-  void begin(const std::vector<std::string> &front,
-             const std::vector<std::string> &back,
-             const std::string &infinitive);
+  void begin(std::vector<std::string> front,
+             std::vector<std::string> back,
+             const std::string &infinitive, const bool &shuffle);
   void results(const int &score, const int &total,
                const std::vector<std::string> incorrect);
   virtual ~Session();

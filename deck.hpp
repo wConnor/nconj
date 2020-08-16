@@ -2,12 +2,12 @@
 #define DECK_HPP
 
 #include <algorithm>
-#include <chrono>
 #include <fstream>
-#include <random>
 #include <sstream>
 #include <string>
 #include <vector>
+#include <random>
+#include <chrono>
 
 class Deck {
 private:
