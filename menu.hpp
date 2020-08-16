@@ -11,6 +11,7 @@ private:
   std::string newName = "";
   std::string newFront = "";
   std::string newBack = "";
+  bool optShuffle = true;
   
 public:
   Menu();
@@ -18,6 +19,7 @@ public:
   void addOption(std::string key, std::string option,
                  std::unique_ptr<int> &length, WINDOW *win);
   void newDeck(std::unique_ptr<Deck> &deck);
+  bool getShuffle();
   virtual ~Menu();
 };
 

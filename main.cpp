@@ -1,4 +1,3 @@
-#include "deck.hpp"
 #include "menu.hpp"
 #include "session.hpp"
 #include <filesystem>
@@ -61,7 +60,7 @@ int main(int argc, char *argv[]) {
           std::make_unique<Deck>(availableDecks[selectedDeck]);
       std::unique_ptr<Session> session = std::make_unique<Session>();
       deck->readContents();
-      session->begin(deck->getFront(), deck->getBack(), deck->getName());
+      session->begin(deck->getFront(), deck->getBack(), deck->getName(), menu->getShuffle());
     }
   }
   delete menu;

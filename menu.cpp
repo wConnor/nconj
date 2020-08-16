@@ -37,6 +37,7 @@ int Menu::print(std::vector<std::string> menuOptions) {
   addOption(" ENTER ", "Select Option ", keyPtr, keysWin);
   addOption(" a ", "Create Deck", keyPtr, keysWin);
   addOption(" q ", "Quit ", keyPtr, keysWin);
+  addOption(" o ", "Options", keyPtr, keysWin);
 
   wrefresh(keysWin);
 
@@ -357,9 +358,69 @@ int Menu::print(std::vector<std::string> menuOptions) {
       } else {
         return -3;
       }
+      // options menu
+    } else if (choice == 'o') {
+      const std::vector<std::string> options = {"Randomise Order of Cards",
+                                                "Option 2"};
+      int optionHighlight = 0;
+      int optionChoice;
+      WINDOW *optionsWin = newwin(yMax - 2, xMax - 23, 1, 21);
+      wbkgd(optionsWin, COLOR_PAIR(1));
+      box(optionsWin, 0, 0);
+      wattron(optionsWin, A_BOLD);
+      mvwprintw(optionsWin, 0, 2, "Options");
+      wattroff(optionsWin, A_BOLD);
+      wrefresh(optionsWin);
+
+      while (1) {
+        for (int i = 0; i < options.size(); ++i) {
+          if (i == optionHighlight)
+            wattron(optionsWin, A_REVERSE);
+
+          mvwprintw(optionsWin, i + 2, 2, "[ ]");
+          wattroff(optionsWin, A_REVERSE);
+          mvwprintw(optionsWin, i + 2, 6, options[i].c_str());
+        }
+
+        optionChoice = wgetch(optionsWin);
+        switch (optionChoice) {
+        case KEY_UP:
+        case 'k':
+          optionHighlight--;
+          if (optionHighlight == -1)
+            optionHighlight = 0;
+          break;
+        case KEY_DOWN:
+        case 'j':
+          optionHighlight++;
+          if (optionHighlight == 2)
+            optionHighlight--;
+          break;
+        default:
+          break;
+        }
+
+		// TODO: move somewhere above, as 'checked' button
+		// is being overwritten by the for loop. avoid nested
+		// 'if's also.
+		if (optionChoice == ' ') {
+		  if (optionHighlight == 0) {
+			wmove(optionsWin, 2, 2);
+			wclrtoeol(optionsWin);
+			box(optionsWin, 0, 0);
+			wprintw(optionsWin, "[x]");
+			wrefresh(optionsWin);
+			optShuffle = true;
+		  }
+		}
+        else if (optionChoice == 10) {
+          break;
+		}
+
+      }
     }
   }
-
+  
   return -1;
 }
 
@@ -378,6 +439,10 @@ void Menu::newDeck(std::unique_ptr<Deck> &deck) {
   newFront.pop_back();
   newBack.pop_back();
   deck->create(newFront, newBack);
+}
+
+bool Menu::getShuffle() {
+  return optShuffle;
 }
 
 Menu::~Menu() {}
