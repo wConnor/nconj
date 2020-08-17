@@ -57,8 +57,8 @@ int Menu::print(std::vector<std::string> menuOptions) {
   int highlight = 0;
 
   /* main menu. loop constantly reads for user input
-         until one of the three options are selected.
-         '10' is the ENTER key.
+     until one of the three options are selected.
+     '10' is the ENTER key.
   */
   while (1) {
     for (int i = 0; i < menuOptions.size(); ++i) {
@@ -159,8 +159,8 @@ int Menu::print(std::vector<std::string> menuOptions) {
       }
 
       /* takes input from the user as they type
-             into the 'Name:' field, assigning it to the 'name'
-             variable. */
+         into the 'Name:' field, assigning it to the 'name'
+         variable. */
       curs_set(1);
       echo();
       wmove(addWindow, 3, 2);
@@ -187,7 +187,7 @@ int Menu::print(std::vector<std::string> menuOptions) {
       curs_set(0);
 
       /* loop to get the choice of deck type from the user,
-                 either 'verb conjugation' or 'generic flashcards'. */
+         either 'verb conjugation' or 'generic flashcards'. */
       while (1) {
         for (int i = 0; i < typeOptions.size(); ++i) {
           if (i == typeHighlight)
@@ -227,16 +227,16 @@ int Menu::print(std::vector<std::string> menuOptions) {
       wrefresh(addWindow);
 
       /* variables:
-             yPtr: holds where to put the next input lines
-             f: reads the character from the 'front' card input
-             b: reads the character from the 'back' card input
+         yPtr: holds where to put the next input lines
+         f: reads the character from the 'front' card input
+         b: reads the character from the 'back' card input
       */
 
       int yPtr = 11;
       wint_t f, b;
       /* loop that constantly takes in input from the
-             user as they add cards. terminated once a blank
-             entry is input ('\n'); no characters before.
+         user as they add cards. terminated once a blank
+         entry is input ('\n'); no characters before.
       */
       while (1) {
         f = wgetch(addWindow);
@@ -360,8 +360,7 @@ int Menu::print(std::vector<std::string> menuOptions) {
       }
       // options menu
     } else if (choice == 'o') {
-      const std::vector<std::string> options = {"Randomise Order of Cards",
-                                                "Option 2"};
+      std::vector<std::string> options = {"[x] Randomise Order of Cards"};
       int optionHighlight = 0;
       int optionChoice;
       WINDOW *optionsWin = newwin(yMax - 2, xMax - 23, 1, 21);
@@ -377,9 +376,8 @@ int Menu::print(std::vector<std::string> menuOptions) {
           if (i == optionHighlight)
             wattron(optionsWin, A_REVERSE);
 
-          mvwprintw(optionsWin, i + 2, 2, "[ ]");
+          mvwprintw(optionsWin, i + 2, 2, options[i].c_str());
           wattroff(optionsWin, A_REVERSE);
-          mvwprintw(optionsWin, i + 2, 6, options[i].c_str());
         }
 
         optionChoice = wgetch(optionsWin);
@@ -393,30 +391,27 @@ int Menu::print(std::vector<std::string> menuOptions) {
         case KEY_DOWN:
         case 'j':
           optionHighlight++;
-          if (optionHighlight == 2)
+          if (optionHighlight == options.size())
             optionHighlight--;
           break;
         default:
           break;
         }
 
-		// TODO: move somewhere above, as 'checked' button
-		// is being overwritten by the for loop. avoid nested
-		// 'if's also.
-		if (optionChoice == ' ') {
-		  if (optionHighlight == 0) {
-			wmove(optionsWin, 2, 2);
-			wclrtoeol(optionsWin);
-			box(optionsWin, 0, 0);
-			wprintw(optionsWin, "[x]");
-			wrefresh(optionsWin);
-			optShuffle = true;
-		  }
-		}
-        else if (optionChoice == 10) {
+        if (optionChoice == ' ') {
+          if (optionHighlight == 0 && options[0] == "[ ] Randomise Order of Cards") {
+            options[0] = "[x] Randomise Order of Cards";
+            optShuffle = true;
+          } else if (optionHighlight == 0){
+            options[0] = "[ ] Randomise Order of Cards";
+            optShuffle = false;
+          }
+        } else if (optionChoice == 10) {
+          wclear(optionsWin);
+          wrefresh(optionsWin);
           break;
-		}
-
+        }
+      
       }
     }
   }
