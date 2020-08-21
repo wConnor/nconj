@@ -302,6 +302,7 @@ int Menu::print(std::vector<std::string> menuOptions) {
            card inputs. */
         wmove(addWindow, yPtr + 1, 2);
         wclrtoeol(addWindow);
+        box(addWindow, 0, 0);
         wattron(addWindow, A_BOLD);
         mvwprintw(addWindow, yPtr + 2, 2, "<Create>");
         mvwprintw(addWindow, yPtr + 2, 20, "<Cancel>");
@@ -444,7 +445,7 @@ int Menu::print(std::vector<std::string> menuOptions) {
             mvwprintw(messageWin, 0, 1, "Deck '%s' has been deleted.",
                       menuOptions[highlight].c_str());
             wattroff(messageWin, A_BOLD);
-			wgetch(messageWin);
+            wgetch(messageWin);
           }
           return -3;
         }
@@ -455,7 +456,7 @@ int Menu::print(std::vector<std::string> menuOptions) {
       std::vector<std::string> options = {"[x] Randomise Order of Cards"};
       int optionHighlight = 0;
       int optionChoice;
-      WINDOW *optionsWin = newwin(yMax - 1, xMax - 23, 1, 21);
+      WINDOW *optionsWin = newwin(yMax - 3, xMax - 23, 1, 21);
       wbkgd(optionsWin, COLOR_PAIR(1));
       box(optionsWin, 0, 0);
       wattron(optionsWin, A_BOLD);
