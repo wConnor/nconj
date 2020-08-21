@@ -12,17 +12,21 @@ int Menu::print(std::vector<std::string> menuOptions) {
   std::unique_ptr<int> keyPtr = std::make_unique<int>(keyEnd);
   std::unique_ptr<int> sesPtr = std::make_unique<int>(sesLength);
   getmaxyx(stdscr, yMax, xMax);
-  WINDOW *menuWin = newwin(yMax - 2, 20, 1, 0);
-  WINDOW *keysWin = newwin(1, xMax, yMax - 1, 0);
+  // newwin(lines, cols, begin_y, begin_x);
+  WINDOW *menuWin = newwin(yMax - 3, 20, 1, 0);
+  WINDOW *keysWin = newwin(1, xMax, yMax - 2, 0);
   WINDOW *barWin = newwin(1, xMax, 0, 0);
+  WINDOW *messageWin = newwin(1, xMax, yMax - 1, 0);
 
   /* colour pairs for the windows
-     ID1 = menuWin
-     ID2 = keysWin
-     ID2 = barWin
+         ID1 = menuWin
+         ID2 = keysWin
+         ID2 = barWin
+         ID1 (norm), ID3 (err) = messageWin
   */
   init_pair(1, COLOR_CYAN, COLOR_BLACK);
   init_pair(2, COLOR_BLACK, COLOR_CYAN);
+  init_pair(3, COLOR_RED, COLOR_BLACK);
   wbkgd(menuWin, COLOR_PAIR(1));
   wbkgd(keysWin, COLOR_PAIR(2));
   wbkgd(barWin, COLOR_PAIR(2));
@@ -32,12 +36,14 @@ int Menu::print(std::vector<std::string> menuOptions) {
   wrefresh(menuWin);
   wrefresh(keysWin);
   wrefresh(barWin);
+  wrefresh(messageWin);
 
   // shows the user the usable keys at the bottom of the screen
   addOption(" ENTER ", "Select Option ", keyPtr, keysWin);
   addOption(" a ", "Create Deck", keyPtr, keysWin);
-  addOption(" q ", "Quit ", keyPtr, keysWin);
+  addOption(" d ", "Delete Deck", keyPtr, keysWin);
   addOption(" o ", "Options", keyPtr, keysWin);
+  addOption(" q ", "Quit ", keyPtr, keysWin);
 
   wrefresh(keysWin);
 
@@ -57,8 +63,8 @@ int Menu::print(std::vector<std::string> menuOptions) {
   int highlight = 0;
 
   /* main menu. loop constantly reads for user input
-     until one of the three options are selected.
-     '10' is the ENTER key.
+         until one of the three options are selected.
+         '10' is the ENTER key.
   */
   while (1) {
     for (int i = 0; i < menuOptions.size(); ++i) {
@@ -118,7 +124,7 @@ int Menu::print(std::vector<std::string> menuOptions) {
       std::vector<std::string> typeOptions = {"- Verb Conjugation",
                                               "- Generic Flashcards"};
 
-      WINDOW *addWindow = newwin(yMax - 2, xMax - 23, 1, 21);
+      WINDOW *addWindow = newwin(yMax - 3, xMax - 23, 1, 21);
       keypad(addWindow, true);
       box(addWindow, 0, 0);
       wbkgd(addWindow, COLOR_PAIR(1));
@@ -159,8 +165,8 @@ int Menu::print(std::vector<std::string> menuOptions) {
       }
 
       /* takes input from the user as they type
-         into the 'Name:' field, assigning it to the 'name'
-         variable. */
+             into the 'Name:' field, assigning it to the 'name'
+             variable. */
       curs_set(1);
       echo();
       wmove(addWindow, 3, 2);
@@ -187,7 +193,7 @@ int Menu::print(std::vector<std::string> menuOptions) {
       curs_set(0);
 
       /* loop to get the choice of deck type from the user,
-         either 'verb conjugation' or 'generic flashcards'. */
+             either 'verb conjugation' or 'generic flashcards'. */
       while (1) {
         for (int i = 0; i < typeOptions.size(); ++i) {
           if (i == typeHighlight)
@@ -227,16 +233,16 @@ int Menu::print(std::vector<std::string> menuOptions) {
       wrefresh(addWindow);
 
       /* variables:
-         yPtr: holds where to put the next input lines
-         f: reads the character from the 'front' card input
-         b: reads the character from the 'back' card input
+             yPtr: holds where to put the next input lines
+             f: reads the character from the 'front' card input
+             b: reads the character from the 'back' card input
       */
 
       int yPtr = 11;
       wint_t f, b;
       /* loop that constantly takes in input from the
-         user as they add cards. terminated once a blank
-         entry is input ('\n'); no characters before.
+             user as they add cards. terminated once a blank
+             entry is input ('\n'); no characters before.
       */
       while (1) {
         f = wgetch(addWindow);
@@ -351,19 +357,105 @@ int Menu::print(std::vector<std::string> menuOptions) {
       }
 
       if (confirmChoice == 0) {
-        newName = name;
-        newFront = front;
-        newBack = back;
-        return -1;
+        if (!name.empty() && !front.empty() && !back.empty()) {
+          newName = name;
+          newFront = front;
+          newBack = back;
+          wbkgd(messageWin, COLOR_PAIR(1));
+          wattron(messageWin, A_BOLD);
+          mvwprintw(messageWin, 0, 1, "Deck %s has been created.",
+                    name.c_str());
+          wattroff(messageWin, A_BOLD);
+          wgetch(messageWin);
+          return -1;
+        } else {
+          wbkgd(messageWin, COLOR_PAIR(3));
+          wattron(messageWin, A_BOLD);
+          mvwprintw(messageWin, 0, 1,
+                    "ERROR: One or more fields left empty. Deck has not been "
+                    "created.");
+          wattroff(messageWin, A_BOLD);
+          wgetch(messageWin);
+          return -3;
+        }
       } else {
         return -3;
       }
+
+      // delete selected deck
+    } else if (choice == 'd') {
+      WINDOW *deleteWin = newwin(yMax - 3, xMax - 23, 1, 21);
+      wbkgd(deleteWin, COLOR_PAIR(1));
+      box(deleteWin, 0, 0);
+      wattron(deleteWin, A_BOLD);
+      mvwprintw(deleteWin, 0, 2, "Delete Deck");
+      wattroff(deleteWin, A_BOLD);
+
+      std::string delMessage = "Are you sure you would like to delete ";
+      mvwprintw(deleteWin, 2, 2, delMessage.c_str());
+      wattron(deleteWin, A_BOLD);
+      mvwprintw(deleteWin, 2, delMessage.length() + 2,
+                menuOptions[highlight].c_str());
+      wattroff(deleteWin, A_BOLD);
+      mvwprintw(deleteWin, 2,
+                delMessage.length() + menuOptions[highlight].length() + 2, "?");
+      wrefresh(deleteWin);
+
+      int buttonHighlight = 1;
+      int buttonChoice;
+      std::vector<std::string> buttons = {"<Delete>", "<Cancel>"};
+
+      while (1) {
+        for (int i = 0, x = 0; i < buttons.size(); ++i) {
+          wattron(deleteWin, A_BOLD);
+          if (i == buttonHighlight)
+            wattron(deleteWin, A_REVERSE);
+
+          mvwprintw(deleteWin, 4, 2 + x, buttons[i].c_str());
+          x += buttons[i].size() + 10;
+          wattroff(deleteWin, A_BOLD);
+          wattroff(deleteWin, A_REVERSE);
+        }
+
+        buttonChoice = wgetch(deleteWin);
+        switch (buttonChoice) {
+        case KEY_LEFT:
+        case 'h':
+          buttonHighlight--;
+          if (buttonHighlight == -1)
+            buttonHighlight = 0;
+          break;
+        case KEY_RIGHT:
+        case 'l':
+          buttonHighlight++;
+          if (buttonHighlight == 2)
+            buttonHighlight--;
+          break;
+        default:
+          break;
+        }
+
+        if (buttonChoice == 10) {
+          if (buttonHighlight == 0) {
+            std::filesystem::remove(std::filesystem::path(
+                "./decks/" + menuOptions[highlight] + ".ncj"));
+            wbkgd(messageWin, COLOR_PAIR(1));
+            wattron(messageWin, A_BOLD);
+            mvwprintw(messageWin, 0, 1, "Deck '%s' has been deleted.",
+                      menuOptions[highlight].c_str());
+            wattroff(messageWin, A_BOLD);
+			wgetch(messageWin);
+          }
+          return -3;
+        }
+      }
+
       // options menu
     } else if (choice == 'o') {
       std::vector<std::string> options = {"[x] Randomise Order of Cards"};
       int optionHighlight = 0;
       int optionChoice;
-      WINDOW *optionsWin = newwin(yMax - 2, xMax - 23, 1, 21);
+      WINDOW *optionsWin = newwin(yMax - 1, xMax - 23, 1, 21);
       wbkgd(optionsWin, COLOR_PAIR(1));
       box(optionsWin, 0, 0);
       wattron(optionsWin, A_BOLD);
@@ -399,10 +491,11 @@ int Menu::print(std::vector<std::string> menuOptions) {
         }
 
         if (optionChoice == ' ') {
-          if (optionHighlight == 0 && options[0] == "[ ] Randomise Order of Cards") {
+          if (optionHighlight == 0 &&
+              options[0] == "[ ] Randomise Order of Cards") {
             options[0] = "[x] Randomise Order of Cards";
             optShuffle = true;
-          } else if (optionHighlight == 0){
+          } else if (optionHighlight == 0) {
             options[0] = "[ ] Randomise Order of Cards";
             optShuffle = false;
           }
@@ -411,11 +504,10 @@ int Menu::print(std::vector<std::string> menuOptions) {
           wrefresh(optionsWin);
           break;
         }
-      
       }
     }
   }
-  
+
   return -1;
 }
 
@@ -436,8 +528,6 @@ void Menu::newDeck(std::unique_ptr<Deck> &deck) {
   deck->create(newFront, newBack);
 }
 
-bool Menu::getShuffle() {
-  return optShuffle;
-}
+bool Menu::getShuffle() { return optShuffle; }
 
 Menu::~Menu() {}

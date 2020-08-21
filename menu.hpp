@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <ncursesw/ncurses.h>
+#include <filesystem>
 #include "deck.hpp"
 
 class Menu {
