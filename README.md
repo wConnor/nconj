@@ -17,14 +17,18 @@ Once compiled, the software is simply ran using `./nconj`. The user should then 
 
 ## Screenshots
 ![Main Screen](/images/main-screen.png)
+
 Main home screen that the user is returned to between sessions.
 
 ![Deck Creation](/images/creation.png)
+
 Screen where users create their decks with their desired cards.
 
 ![Session Screen](/images/session-screen.png)
+
 Session screen where the user is prompted to input their response to seeing the front side of the card.
 
 ![Completion Screen](/images/complete.png)
+
 Completion screen for when the user has finishes reviewing the deck's cards.
 
