@@ -1,8 +1,3 @@
-cmake_minimum_required(VERSION 3.13)
-set(CMAKE_BUILD_TYPE RelWithDebInfo)
-set(CMAKE_CXX_FLAGS "-Wall")
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_LIBRARIES "-lncursesw -lstdc++fs")
-set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+cmake_minimum_required(VERSION 2.8.12) # Earliest version that is not yet planned to become obsolete.
 project(nconj)
-add_executable(nconj main.cpp session.cpp menu.cpp deck.cpp)
+add_subdirectory(src)
