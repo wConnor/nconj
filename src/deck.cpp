@@ -4,9 +4,9 @@ Deck::Deck()
 {
 }
 
-Deck::Deck(const std::string &name)
+Deck::Deck(const std::string &deck_name)
 {
-	deck_name = name;
+	this->deck_name = deck_name;
 }
 
 void Deck::create(const std::string &front, const std::string &back)
@@ -24,50 +24,44 @@ void Deck::read_contents()
 {
 	std::fstream file("./decks/" + deck_name + ".ncj");
 
-	std::string tempName = "";
-	std::string tempFront = "";
-	std::string tempBack = "";
+	std::string temp_name = "";
+	std::string temp_front = "";
+	std::string temp_back = "";
 
 	while (file.good())
 	{
-		std::getline(file, tempName, '\n');
-		std::getline(file, tempFront, '\n');
-		std::getline(file, tempBack, '\n');
+		std::getline(file, temp_name, '\n');
+		std::getline(file, temp_front, '\n');
+		std::getline(file, temp_back, '\n');
 	}
 
 	file.close();
 
-	std::stringstream frontStream(tempFront);
-	std::stringstream backStream(tempBack);
+	std::stringstream front_stream(temp_front);
+	std::stringstream back_stream(temp_back);
 
-	while (frontStream.good() && backStream.good())
+	while (front_stream.good() && back_stream.good())
 	{
 		std::string frontSub, backSub;
-		std::getline(frontStream, frontSub, ',');
-		std::getline(backStream, backSub, ',');
-		front.push_back(frontSub);
-		back.push_back(backSub);
+		std::getline(front_stream, frontSub, ',');
+		std::getline(back_stream, backSub, ',');
+		deck.push_back({frontSub, backSub});
 	}
 }
 
-void Deck::set_name(const std::string &name)
+void Deck::set_deck_name(const std::string &deck_name)
 {
-	deck_name = name;
+	this->deck_name = deck_name;
 }
 
-std::string Deck::get_name()
+std::string Deck::get_deck_name()
 {
-	return deck_name;
+	return this->deck_name;
 }
 
-std::vector<std::string> Deck::get_front()
+std::vector<std::pair<std::string, std::string>> Deck::get_deck()
 {
-	return front;
-}
-
-std::vector<std::string> Deck::get_back()
-{
-	return back;
+	return this->deck;
 }
 
 Deck::~Deck()

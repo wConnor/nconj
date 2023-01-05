@@ -20,7 +20,8 @@ class Menu
   public:
 	Menu();
 	int print(std::vector<std::string> menuOptions);
-	void add_option(std::string key, std::string option, std::unique_ptr<int> &length, WINDOW *win);
+	void add_option(std::string key, std::string option,
+					std::unique_ptr<int> &length, WINDOW *win);
 	void new_deck(std::unique_ptr<Deck> &deck);
 	bool get_shuffle();
 	virtual ~Menu();

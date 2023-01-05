@@ -76,7 +76,7 @@ int Menu::print(std::vector<std::string> menuOptions)
 			if (i == highlight)
 				wattron(menuWin, A_REVERSE);
 
-			mvwprintw(menuWin, i + 1, 1, menuOptions[i].c_str());
+			mvwprintw(menuWin, i + 1, 1, "%s", menuOptions[i].c_str());
 			wattroff(menuWin, A_REVERSE);
 		}
 		choice = wgetch(menuWin);
@@ -132,7 +132,8 @@ int Menu::print(std::vector<std::string> menuOptions)
 			std::string cardInput = "";
 			int yCur, xCur; // holds the current cursor position to simulate the
 							// backspace key for inputs.
-			std::vector<std::string> typeOptions = {"- Verb Conjugation", "- Generic Flashcards"};
+			std::vector<std::string> typeOptions = {"- Verb Conjugation",
+													"- Generic Flashcards"};
 
 			WINDOW *addWindow = newwin(yMax - 3, xMax - 23, 1, 21);
 			keypad(addWindow, true);
@@ -172,7 +173,7 @@ int Menu::print(std::vector<std::string> menuOptions)
 			// prints the various deck choices.
 			for (int i = 0; i < typeOptions.size(); ++i)
 			{
-				mvwprintw(addWindow, i + 6, 3, typeOptions[i].c_str());
+				mvwprintw(addWindow, i + 6, 3, "%s", typeOptions[i].c_str());
 			}
 
 			/* takes input from the user as they type
@@ -185,13 +186,16 @@ int Menu::print(std::vector<std::string> menuOptions)
 			while (c != '\n')
 			{
 				getyx(addWindow, yCur, xCur);
-				if ((c == KEY_BACKSPACE || c == KEY_DC || c == 127) && name.size() != 0)
+				if ((c == KEY_BACKSPACE || c == KEY_DC || c == 127) &&
+					name.size() != 0)
 				{
 					name.pop_back();
 					wprintw(addWindow, "_");
 					wmove(addWindow, yCur, xCur);
 				}
-				else if ((c == KEY_BACKSPACE || c == KEY_DC || c == 127 || c == 263) && name.size() == 0)
+				else if ((c == KEY_BACKSPACE || c == KEY_DC || c == 127 ||
+						  c == 263) &&
+						 name.size() == 0)
 				{
 					wmove(addWindow, yCur, xCur);
 					wprintw(addWindow, " ");
@@ -215,7 +219,7 @@ int Menu::print(std::vector<std::string> menuOptions)
 					if (i == typeHighlight)
 						wattron(addWindow, A_REVERSE);
 
-					mvwprintw(addWindow, i + 6, 3, typeOptions[i].c_str());
+					mvwprintw(addWindow, i + 6, 3, "%s", typeOptions[i].c_str());
 					wattroff(addWindow, A_REVERSE);
 				}
 
@@ -268,13 +272,15 @@ int Menu::print(std::vector<std::string> menuOptions)
 				while (f != '\n')
 				{
 					getyx(addWindow, yCur, xCur);
-					if ((f == KEY_BACKSPACE || f == KEY_DC || f == 127) && cardInput.size() != 0)
+					if ((f == KEY_BACKSPACE || f == KEY_DC || f == 127) &&
+						cardInput.size() != 0)
 					{
 						cardInput.pop_back();
 						wprintw(addWindow, "_");
 						wmove(addWindow, yCur, xCur);
 					}
-					else if ((f == KEY_BACKSPACE || f == KEY_DC || f == 127 || f == 263) &&
+					else if ((f == KEY_BACKSPACE || f == KEY_DC || f == 127 ||
+							  f == 263) &&
 							 cardInput.size() == 0)
 					{
 						wmove(addWindow, yCur, xCur);
@@ -300,13 +306,15 @@ int Menu::print(std::vector<std::string> menuOptions)
 				while (b != '\n')
 				{
 					getyx(addWindow, yCur, xCur);
-					if ((b == KEY_BACKSPACE || b == KEY_DC || b == 127) && cardInput.size() != 0)
+					if ((b == KEY_BACKSPACE || b == KEY_DC || b == 127) &&
+						cardInput.size() != 0)
 					{
 						wprintw(addWindow, "_");
 						wmove(addWindow, yCur, xCur);
 						cardInput.pop_back();
 					}
-					else if ((b == KEY_BACKSPACE || b == KEY_DC || b == 127 || b == 263) &&
+					else if ((b == KEY_BACKSPACE || b == KEY_DC || b == 127 ||
+							  b == 263) &&
 							 cardInput.size() == 0)
 					{
 						wmove(addWindow, yCur, xCur);
@@ -356,7 +364,7 @@ int Menu::print(std::vector<std::string> menuOptions)
 					if (i == buttonHighlight)
 						wattron(addWindow, A_REVERSE);
 
-					mvwprintw(addWindow, yPtr + 1, 2 + x, buttons[i].c_str());
+					mvwprintw(addWindow, yPtr + 1, 2 + x, "%s", buttons[i].c_str());
 					x += buttons[i].size() + 10;
 					wattroff(addWindow, A_BOLD);
 					wattroff(addWindow, A_REVERSE);
@@ -397,7 +405,8 @@ int Menu::print(std::vector<std::string> menuOptions)
 					new_back = back;
 					wbkgd(messageWin, COLOR_PAIR(1));
 					wattron(messageWin, A_BOLD);
-					mvwprintw(messageWin, 0, 1, "Deck %s has been created.", name.c_str());
+					mvwprintw(messageWin, 0, 1, "Deck %s has been created.",
+							  name.c_str());
 					wattroff(messageWin, A_BOLD);
 					wgetch(messageWin);
 					return -1;
@@ -406,9 +415,10 @@ int Menu::print(std::vector<std::string> menuOptions)
 				{
 					wbkgd(messageWin, COLOR_PAIR(3));
 					wattron(messageWin, A_BOLD);
-					mvwprintw(messageWin, 0, 1,
-							  "ERROR: One or more fields left empty. Deck has not been "
-							  "created.");
+					mvwprintw(
+						messageWin, 0, 1,
+						"ERROR: One or more fields left empty. Deck has not been "
+						"created.");
 					wattroff(messageWin, A_BOLD);
 					wgetch(messageWin);
 					return -3;
@@ -431,11 +441,14 @@ int Menu::print(std::vector<std::string> menuOptions)
 			wattroff(deleteWin, A_BOLD);
 
 			std::string delMessage = "Are you sure you would like to delete ";
-			mvwprintw(deleteWin, 2, 2, delMessage.c_str());
+			mvwprintw(deleteWin, 2, 2, "%s", delMessage.c_str());
 			wattron(deleteWin, A_BOLD);
-			mvwprintw(deleteWin, 2, delMessage.length() + 2, menuOptions[highlight].c_str());
+			mvwprintw(deleteWin, 2, delMessage.length() + 2, "%s",
+					  menuOptions[highlight].c_str());
 			wattroff(deleteWin, A_BOLD);
-			mvwprintw(deleteWin, 2, delMessage.length() + menuOptions[highlight].length() + 2, "?");
+			mvwprintw(deleteWin, 2,
+					  delMessage.length() + menuOptions[highlight].length() + 2,
+					  "?");
 			wrefresh(deleteWin);
 
 			int buttonHighlight = 1;
@@ -450,7 +463,7 @@ int Menu::print(std::vector<std::string> menuOptions)
 					if (i == buttonHighlight)
 						wattron(deleteWin, A_REVERSE);
 
-					mvwprintw(deleteWin, 4, 2 + x, buttons[i].c_str());
+					mvwprintw(deleteWin, 4, 2 + x, "%s", buttons[i].c_str());
 					x += buttons[i].size() + 10;
 					wattroff(deleteWin, A_BOLD);
 					wattroff(deleteWin, A_REVERSE);
@@ -479,8 +492,8 @@ int Menu::print(std::vector<std::string> menuOptions)
 				{
 					if (buttonHighlight == 0)
 					{
-						std::filesystem::remove(
-							std::filesystem::path("./decks/" + menuOptions[highlight] + ".ncj"));
+						std::filesystem::remove(std::filesystem::path(
+							"./decks/" + menuOptions[highlight] + ".ncj"));
 						wbkgd(messageWin, COLOR_PAIR(1));
 						wattron(messageWin, A_BOLD);
 						mvwprintw(messageWin, 0, 1, "Deck '%s' has been deleted.",
@@ -514,7 +527,7 @@ int Menu::print(std::vector<std::string> menuOptions)
 					if (i == optionHighlight)
 						wattron(optionsWin, A_REVERSE);
 
-					mvwprintw(optionsWin, i + 2, 2, options[i].c_str());
+					mvwprintw(optionsWin, i + 2, 2, "%s", options[i].c_str());
 					wattroff(optionsWin, A_REVERSE);
 				}
 
@@ -539,7 +552,8 @@ int Menu::print(std::vector<std::string> menuOptions)
 
 				if (optionChoice == ' ')
 				{
-					if (optionHighlight == 0 && options[0] == "[ ] Randomise Order of Cards")
+					if (optionHighlight == 0 &&
+						options[0] == "[ ] Randomise Order of Cards")
 					{
 						options[0] = "[x] Randomise Order of Cards";
 						opt_shuffle = true;
@@ -563,19 +577,20 @@ int Menu::print(std::vector<std::string> menuOptions)
 	return -1;
 }
 
-void Menu::add_option(std::string key, std::string option, std::unique_ptr<int> &length, WINDOW *win)
+void Menu::add_option(std::string key, std::string option,
+					  std::unique_ptr<int> &length, WINDOW *win)
 {
 	wattron(win, A_REVERSE);
-	mvwprintw(win, 0, *length, key.c_str());
+	mvwprintw(win, 0, *length, "%s", key.c_str());
 	*length += key.length() + 1;
 	wattroff(win, A_REVERSE);
-	mvwprintw(win, 0, *length, option.c_str());
+	mvwprintw(win, 0, *length, "%s", option.c_str());
 	*length += option.length() + 1;
 }
 
 void Menu::new_deck(std::unique_ptr<Deck> &deck)
 {
-	deck->set_name(new_name);
+	deck->set_deck_name(new_name);
 	new_front.pop_back();
 	new_back.pop_back();
 	deck->create(new_front, new_back);

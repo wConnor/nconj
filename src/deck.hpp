@@ -14,21 +14,19 @@ class Deck
   private:
 	std::string file_name = "";
 	std::string deck_name = "";
-	std::vector<std::string> front = {};
-	std::vector<std::string> back = {};
+	std::vector<std::pair<std::string, std::string>> deck =
+		{}; // { front side, back side }
 
   public:
 	Deck();
-	Deck(const std::string &name);
+	Deck(const std::string &deck_name);
 	void create(const std::string &front, const std::string &back);
 	void read_contents();
 
-	void set_name(const std::string &name);
-	std::string get_name();
+	void set_deck_name(const std::string &deck_name);
+	std::string get_deck_name();
 
-	std::vector<std::string> get_front();
-
-	std::vector<std::string> get_back();
+	std::vector<std::pair<std::string, std::string>> get_deck();
 
 	virtual ~Deck();
 };

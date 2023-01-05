@@ -4,20 +4,19 @@
 
 int main(int argc, char *argv[])
 {
-	/* checks to see whether or not the data directory
-	   exists and, if it does not, creates both it and
-	   the decks.ncj file with some example french
-	   conjugation.
-	*/
+	// checks to see whether or not the data directory exists and, if it does not,
+	// creates both it and the decks.ncj file with some example conjugation.
 	if (!std::filesystem::exists("./decks/"))
 	{
 		std::filesystem::create_directory("./decks/");
-		std::unique_ptr<Deck> exDeck1 = std::make_unique<Deck>("être");
-		std::unique_ptr<Deck> exDeck2 = std::make_unique<Deck>("connaître");
+		std::unique_ptr<Deck> example1 = std::make_unique<Deck>("être");
+		std::unique_ptr<Deck> example2 = std::make_unique<Deck>("connaître");
 
-		exDeck1->create("je,tu,il/elle,nous,vous,ils/elles", "suis,es,est,sommes,êtes,sont");
-		exDeck2->create("je,tu,il/elle,nous,vous,ils/elles",
-						"connais,connais,connaît,connaissons,connaissez,connaissent");
+		example1->create("je,tu,il/elle,nous,vous,ils/elles",
+						 "suis,es,est,sommes,êtes,sont");
+		example2->create(
+			"je,tu,il/elle,nous,vous,ils/elles",
+			"connais,connais,connaît,connaissons,connaissez,connaissent");
 	}
 
 	std::vector<std::string> availableDecks = {};
@@ -27,7 +26,7 @@ int main(int argc, char *argv[])
 	cbreak();
 	start_color();
 
-	Menu *menu = new Menu();
+	std::unique_ptr<Menu> menu = std::make_unique<Menu>();
 	int selectedDeck;
 	while (1)
 	{
@@ -63,13 +62,15 @@ int main(int argc, char *argv[])
 		}
 		else if (selectedDeck >= 0)
 		{
-			std::unique_ptr<Deck> deck = std::make_unique<Deck>(availableDecks[selectedDeck]);
+			std::unique_ptr<Deck> deck =
+				std::make_unique<Deck>(availableDecks[selectedDeck]);
 			std::unique_ptr<Session> session = std::make_unique<Session>();
 			deck->read_contents();
-			session->begin(deck->get_front(), deck->get_back(), deck->get_name(), menu->get_shuffle());
+			session->begin(deck->get_deck(), deck->get_deck_name(),
+						   menu->get_shuffle());
 		}
 	}
-	delete menu;
+
 	endwin();
 
 	return 0;

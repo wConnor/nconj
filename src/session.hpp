@@ -14,7 +14,7 @@ class Session
   private:
   public:
 	Session();
-	void begin(std::vector<std::string> front, std::vector<std::string> back, const std::string &infinitive,
+	void begin(std::vector<std::pair<std::string, std::string>> deck, const std::string &infinitive,
 			   const bool &shuffle);
 	void results(const int &score, const int &total, const std::vector<std::string> incorrect);
 	virtual ~Session();
