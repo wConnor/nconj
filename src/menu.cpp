@@ -298,7 +298,7 @@ int Menu::print(std::vector<std::string> menuOptions)
 				if (f == '\n' && cardInput.size() == 0)
 					break;
 
-				front += cardInput + ",";
+				std::string temp_front = cardInput;
 				cardInput.clear();
 				wmove(addWindow, yPtr - 1, 20);
 
@@ -329,7 +329,8 @@ int Menu::print(std::vector<std::string> menuOptions)
 					b = wgetch(addWindow);
 				}
 
-				back += cardInput + ",";
+				std::string temp_back = cardInput;
+				temp_deck.push_back({temp_front, temp_back});
 
 				cardInput.clear();
 
@@ -402,8 +403,6 @@ int Menu::print(std::vector<std::string> menuOptions)
 				if (!name.empty() && !front.empty() && !back.empty())
 				{
 					new_name = name;
-					new_front = front;
-					new_back = back;
 					wbkgd(messageWin, COLOR_PAIR(1));
 					wattron(messageWin, A_BOLD);
 					mvwprintw(messageWin, 0, 1, "Deck %s has been created.",
@@ -429,8 +428,6 @@ int Menu::print(std::vector<std::string> menuOptions)
 			{
 				return -3;
 			}
-
-			// delete selected deck
 		}
 		else if (choice == 'd')
 		{
@@ -559,7 +556,7 @@ int Menu::print(std::vector<std::string> menuOptions)
 
 				if (optionChoice == ' ')
 				{
-					if (optionHighlight == 0 &&	options[0][1] == ' ')
+					if (optionHighlight == 0 && options[0][1] == ' ')
 					{
 						options[0][1] = 'x';
 						opt_shuffle = true;
@@ -597,9 +594,7 @@ void Menu::add_option(std::string key, std::string option,
 void Menu::new_deck(std::unique_ptr<Deck> &deck)
 {
 	deck->set_deck_name(new_name);
-	new_front.pop_back();
-	new_back.pop_back();
-	deck->create(new_front, new_back);
+	deck->create(this->temp_deck);
 }
 
 bool Menu::get_shuffle()

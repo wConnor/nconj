@@ -1,9 +1,12 @@
 #ifndef DECK_HPP
 #define DECK_HPP
 
+#include <sqlite3.h>
+
 #include <algorithm>
 #include <chrono>
 #include <fstream>
+#include <filesystem>
 #include <random>
 #include <sstream>
 #include <string>
@@ -12,6 +15,7 @@
 class Deck
 {
 private:
+	const std::filesystem::path db_path = "./decks.sql";
 	std::string file_name = "";
 	std::string deck_name = "";
 	std::vector<std::pair<std::string, std::string>> deck =
@@ -20,7 +24,7 @@ private:
 public:
 	Deck();
 	Deck(const std::string &deck_name);
-	void create(const std::string &front, const std::string &back);
+	bool create(const std::vector<std::pair<std::string, std::string>> &notes);
 	void read_contents();
 
 	void set_deck_name(const std::string &deck_name);

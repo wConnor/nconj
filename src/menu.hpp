@@ -12,9 +12,8 @@
 class Menu
 {
 private:
+	std::vector<std::pair<std::string, std::string>> temp_deck;
 	std::string new_name = "";
-	std::string new_front = "";
-	std::string new_back = "";
 	bool opt_shuffle = true;
 
 public:

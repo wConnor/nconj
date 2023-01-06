@@ -16,9 +16,10 @@ set(CURSES_NEED_NCURSES TRUE)
 set(CURSES_NEED_WIDE TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
+find_package(SQLite3 REQUIRED)
 find_package(Curses REQUIRED)
 find_package(Threads REQUIRED)
 include_directories(${CURSES_INCLUDE_DIR})
 
 add_executable(${CMAKE_PROJECT_NAME} ${PROJECT_SOURCES})
-target_link_libraries(${CMAKE_PROJECT_NAME} ${CURSES_LIBRARIES} Threads::Threads)
+target_link_libraries(${CMAKE_PROJECT_NAME} ${SQLite3_LIBRARIES} ${CURSES_LIBRARIES} Threads::Threads)

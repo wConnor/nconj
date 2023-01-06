@@ -10,10 +10,10 @@ $ cmake ..
 $ make -j$(nproc)
 ```
 
-This should result in the `nconj` binary.
+This should result in the `nconj` binary inside of the `./build/src/` directory.
 
 ## Usage
-Once compiled, the software is simply ran using `./nconj`. The user should then be prompted with the terminal interface.
+Once compiled, the software is simply ran using `./build/src/nconj` from the repository's root directory. The user should then be prompted with the terminal interface.
 
 ## Screenshots
 ![Main Screen](/images/main-screen.png)
@@ -30,5 +30,5 @@ Session screen where the user is prompted to input their response to seeing the 
 
 ![Completion Screen](/images/complete.png)
 
-Completion screen for when the user has finishes reviewing the deck's cards.
+Completion screen for when the user has finished reviewing the deck's cards.
 
