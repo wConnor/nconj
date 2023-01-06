@@ -11,13 +11,13 @@
 
 class Deck
 {
-  private:
+private:
 	std::string file_name = "";
 	std::string deck_name = "";
 	std::vector<std::pair<std::string, std::string>> deck =
 		{}; // { front side, back side }
 
-  public:
+public:
 	Deck();
 	Deck(const std::string &deck_name);
 	void create(const std::string &front, const std::string &back);

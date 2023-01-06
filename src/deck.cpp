@@ -24,9 +24,7 @@ void Deck::read_contents()
 {
 	std::fstream file("./decks/" + deck_name + ".ncj");
 
-	std::string temp_name = "";
-	std::string temp_front = "";
-	std::string temp_back = "";
+	std::string temp_name = "", temp_front = "", temp_back = "";
 
 	while (file.good())
 	{

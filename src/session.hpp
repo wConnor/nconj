@@ -11,12 +11,15 @@
 
 class Session
 {
-  private:
-  public:
+private:
+	bool quit_flag = false;
+
+public:
 	Session();
-	void begin(std::vector<std::pair<std::string, std::string>> deck, const std::string &infinitive,
-			   const bool &shuffle);
-	void results(const int &score, const int &total, const std::vector<std::string> incorrect);
+	void begin(std::vector<std::pair<std::string, std::string>> deck,
+			   const std::string &infinitive, const bool &shuffle);
+	void results(const int &score, const int &total,
+				 const std::vector<std::string> incorrect);
 	virtual ~Session();
 };
 

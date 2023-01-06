@@ -12,21 +12,21 @@ int Menu::print(std::vector<std::string> menuOptions)
 	curs_set(0);
 	int yMax, xMax;
 	int keyEnd = 0, sesLength = 0;
-	std::unique_ptr<int> keyPtr = std::make_unique<int>(keyEnd);
-	std::unique_ptr<int> sesPtr = std::make_unique<int>(sesLength);
+	std::unique_ptr<int> key = std::make_unique<int>(keyEnd);
+	std::unique_ptr<int> ses = std::make_unique<int>(sesLength);
 	getmaxyx(stdscr, yMax, xMax);
+
 	// newwin(lines, cols, begin_y, begin_x);
 	WINDOW *menuWin = newwin(yMax - 3, 20, 1, 0);
 	WINDOW *keysWin = newwin(1, xMax, yMax - 2, 0);
 	WINDOW *barWin = newwin(1, xMax, 0, 0);
 	WINDOW *messageWin = newwin(1, xMax, yMax - 1, 0);
 
-	/* colour pairs for the windows
-		   ID1 = menuWin
-		   ID2 = keysWin
-		   ID2 = barWin
-		   ID1 (norm), ID3 (err) = messageWin
-	*/
+	// colour pairs for the windows
+	//     ID1 = menuWin
+	//	   ID2 = keysWin
+	//	   ID2 = barWin
+	//	   ID1 (norm), ID3 (err) = messageWin
 	init_pair(1, COLOR_CYAN, COLOR_BLACK);
 	init_pair(2, COLOR_BLACK, COLOR_CYAN);
 	init_pair(3, COLOR_RED, COLOR_BLACK);
@@ -42,11 +42,11 @@ int Menu::print(std::vector<std::string> menuOptions)
 	wrefresh(messageWin);
 
 	// shows the user the usable keys at the bottom of the screen
-	add_option(" ENTER ", "Select Option ", keyPtr, keysWin);
-	add_option(" a ", "Create Deck", keyPtr, keysWin);
-	add_option(" d ", "Delete Deck", keyPtr, keysWin);
-	add_option(" o ", "Options", keyPtr, keysWin);
-	add_option(" q ", "Quit ", keyPtr, keysWin);
+	add_option(" ENTER ", "Select Option ", key, keysWin);
+	add_option(" a ", "Create Deck", key, keysWin);
+	add_option(" d ", "Delete Deck", key, keysWin);
+	add_option(" o ", "Options", key, keysWin);
+	add_option(" q ", "Quit ", key, keysWin);
 
 	wrefresh(keysWin);
 
@@ -112,7 +112,8 @@ int Menu::print(std::vector<std::string> menuOptions)
 			wrefresh(menuWin);
 			wrefresh(keysWin);
 			mvwprintw(barWin, 0, 1, "nconj session");
-			add_option(" F1 ", "Skip", sesPtr, keysWin);
+			add_option(" ESC ", "Quit", ses, keysWin);
+			add_option(" F1 ", "Skip", ses, keysWin);
 			wrefresh(keysWin);
 			wrefresh(barWin);
 			return highlight;
@@ -520,12 +521,14 @@ int Menu::print(std::vector<std::string> menuOptions)
 			wattroff(optionsWin, A_BOLD);
 			wrefresh(optionsWin);
 
-			while (1)
+			while (true)
 			{
 				for (int i = 0; i < options.size(); ++i)
 				{
 					if (i == optionHighlight)
+					{
 						wattron(optionsWin, A_REVERSE);
+					}
 
 					mvwprintw(optionsWin, i + 2, 2, "%s", options[i].c_str());
 					wattroff(optionsWin, A_REVERSE);
@@ -538,13 +541,17 @@ int Menu::print(std::vector<std::string> menuOptions)
 				case 'k':
 					optionHighlight--;
 					if (optionHighlight == -1)
+					{
 						optionHighlight = 0;
+					}
 					break;
 				case KEY_DOWN:
 				case 'j':
 					optionHighlight++;
 					if (optionHighlight == options.size())
+					{
 						optionHighlight--;
+					}
 					break;
 				default:
 					break;
@@ -552,15 +559,14 @@ int Menu::print(std::vector<std::string> menuOptions)
 
 				if (optionChoice == ' ')
 				{
-					if (optionHighlight == 0 &&
-						options[0] == "[ ] Randomise Order of Cards")
+					if (optionHighlight == 0 &&	options[0][1] == ' ')
 					{
-						options[0] = "[x] Randomise Order of Cards";
+						options[0][1] = 'x';
 						opt_shuffle = true;
 					}
 					else if (optionHighlight == 0)
 					{
-						options[0] = "[ ] Randomise Order of Cards";
+						options[0][1] = ' ';
 						opt_shuffle = false;
 					}
 				}

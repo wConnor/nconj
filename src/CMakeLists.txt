@@ -12,6 +12,8 @@ add_custom_target(run
 )
 
 set(CMAKE_CXX_STANDARD 17)
+set(CURSES_NEED_NCURSES TRUE)
+set(CURSES_NEED_WIDE TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 find_package(Curses REQUIRED)

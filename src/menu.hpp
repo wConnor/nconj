@@ -11,13 +11,13 @@
 
 class Menu
 {
-  private:
+private:
 	std::string new_name = "";
 	std::string new_front = "";
 	std::string new_back = "";
 	bool opt_shuffle = true;
 
-  public:
+public:
 	Menu();
 	int print(std::vector<std::string> menuOptions);
 	void add_option(std::string key, std::string option,

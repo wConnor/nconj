@@ -11,8 +11,6 @@ void Session::begin(std::vector<std::pair<std::string, std::string>> deck,
 	echo();
 	keypad(stdscr, TRUE);
 
-	raw();
-
 	/* coordinates start from point 0,0 which is the top left corner of the
 	   terminal
 	   coordinates are in the form of y, x as opposed to the more common x, y
@@ -21,6 +19,7 @@ void Session::begin(std::vector<std::pair<std::string, std::string>> deck,
 	   coordinate arithmetic applies; ymax/2 brings the cursor to
 	   mid.
 	*/
+	this->quit_flag = false;
 	int score = 0;
 	int ctr = 3; // line number where to put cursor
 	int maxy, maxx;
@@ -30,10 +29,9 @@ void Session::begin(std::vector<std::pair<std::string, std::string>> deck,
 
 	if (shuffle)
 	{
-		std::shuffle(
-			deck.begin(), deck.end(),
-			std::default_random_engine(
-				std::chrono::system_clock::now().time_since_epoch().count()));
+		auto seed = std::default_random_engine(
+			std::chrono::system_clock::now().time_since_epoch().count());
+		std::shuffle(deck.begin(), deck.end(), seed);
 	}
 
 	for (const auto &d : deck)
@@ -76,11 +74,21 @@ void Session::begin(std::vector<std::pair<std::string, std::string>> deck,
 			{
 				break;
 			}
+			else if (c == 27) // ESC key
+			{
+				this->quit_flag = true;
+				break;
+			}
 			else
 			{
 				input.push_back(c);
 			}
 			c = getch();
+		}
+
+		if (this->quit_flag)
+		{
+			break;
 		}
 
 		wclear(checkWin);
