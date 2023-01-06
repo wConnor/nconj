@@ -15,22 +15,23 @@
 class Deck
 {
 private:
-	const std::filesystem::path db_path = "./decks.sql";
+	const std::filesystem::path db_path = "decks.sql";
 	std::string file_name = "";
-	std::string deck_name = "";
-	std::vector<std::pair<std::string, std::string>> deck =
+	std::string name = "";
+	std::vector<std::pair<std::string, std::string>> notes =
 		{}; // { front side, back side }
 
 public:
 	Deck();
-	Deck(const std::string &deck_name);
+	Deck(const std::string &name);
 	bool create(const std::vector<std::pair<std::string, std::string>> &notes);
 	void read_contents();
 
-	void set_deck_name(const std::string &deck_name);
-	std::string get_deck_name();
+	void set_name(const std::string &name);
+	std::string get_name();
 
-	std::vector<std::pair<std::string, std::string>> get_deck();
+	void set_notes(std::vector<std::pair<std::string, std::string>> notes);
+	std::vector<std::pair<std::string, std::string>> get_notes();
 
 	virtual ~Deck();
 };

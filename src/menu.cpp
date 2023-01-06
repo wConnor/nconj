@@ -593,7 +593,7 @@ void Menu::add_option(std::string key, std::string option,
 
 void Menu::new_deck(std::unique_ptr<Deck> &deck)
 {
-	deck->set_deck_name(new_name);
+	deck->set_name(new_name);
 	deck->create(this->temp_deck);
 }
 

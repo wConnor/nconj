@@ -3,6 +3,7 @@ set(PROJECT_SOURCES
   session.cpp
   menu.cpp
   deck.cpp
+  database.cpp
   )
 
 add_custom_target(run
