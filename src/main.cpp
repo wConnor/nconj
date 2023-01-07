@@ -1,7 +1,6 @@
 #include "menu.hpp"
 #include "session.hpp"
 #include <iostream>
-#include <sqlite3.h>
 
 auto log_file = std::make_shared<std::fstream>();
 const std::filesystem::path db_path = "decks.sql";

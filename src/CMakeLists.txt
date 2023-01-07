@@ -24,4 +24,4 @@ include_directories(${CURSES_INCLUDE_DIR})
 
 add_executable(${CMAKE_PROJECT_NAME} ${PROJECT_SOURCES})
 target_link_libraries(${CMAKE_PROJECT_NAME} ${SQLite3_LIBRARIES} ${CURSES_LIBRARIES} Threads::Threads)
-target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra)
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)

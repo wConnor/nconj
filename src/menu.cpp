@@ -5,8 +5,10 @@ Menu::Menu(std::shared_ptr<Database> db)
 	this->db = db;
 }
 
-int Menu::print(std::vector<std::string> menuOptions)
+int Menu::print(std::vector<std::string> deck_list)
 {
+	auto enabled_options = db->retrieve_options();
+
 	clear();
 	noecho();
 	curs_set(0);
@@ -17,50 +19,50 @@ int Menu::print(std::vector<std::string> menuOptions)
 	getmaxyx(stdscr, yMax, xMax);
 
 	// newwin(lines, cols, begin_y, begin_x);
-	WINDOW *menuWin = newwin(yMax - 3, 20, 1, 0);
-	WINDOW *keysWin = newwin(1, xMax, yMax - 2, 0);
-	WINDOW *barWin = newwin(1, xMax, 0, 0);
-	WINDOW *messageWin = newwin(1, xMax, yMax - 1, 0);
+	WINDOW *menu_win = newwin(yMax - 3, 20, 1, 0);
+	WINDOW *keys_win = newwin(1, xMax, yMax - 2, 0);
+	WINDOW *bar_win = newwin(1, xMax, 0, 0);
+	WINDOW *message_win = newwin(1, xMax, yMax - 1, 0);
 
 	// colour pairs for the windows
-	//     ID1 = menuWin
-	//	   ID2 = keysWin
-	//	   ID2 = barWin
-	//	   ID1 (norm), ID3 (err) = messageWin
+	//     ID1 = menu_win
+	//	   ID2 = keys_win
+	//	   ID2 = bar_win
+	//	   ID1 (norm), ID3 (err) = message_win
 	init_pair(1, COLOR_CYAN, COLOR_BLACK);
 	init_pair(2, COLOR_BLACK, COLOR_CYAN);
 	init_pair(3, COLOR_RED, COLOR_BLACK);
-	wbkgd(menuWin, COLOR_PAIR(1));
-	wbkgd(keysWin, COLOR_PAIR(2));
-	wbkgd(barWin, COLOR_PAIR(2));
+	wbkgd(menu_win, COLOR_PAIR(1));
+	wbkgd(keys_win, COLOR_PAIR(2));
+	wbkgd(bar_win, COLOR_PAIR(2));
 
 	// ensures contents in memory are written to the framebuffer.
 	refresh();
-	wrefresh(menuWin);
-	wrefresh(keysWin);
-	wrefresh(barWin);
-	wrefresh(messageWin);
+	wrefresh(menu_win);
+	wrefresh(keys_win);
+	wrefresh(bar_win);
+	wrefresh(message_win);
 
 	// shows the user the usable keys at the bottom of the screen
-	add_option(" ENTER ", "Select Option ", key, keysWin);
-	add_option(" a ", "Create Deck", key, keysWin);
-	add_option(" d ", "Delete Deck", key, keysWin);
-	add_option(" o ", "Options", key, keysWin);
-	add_option(" q ", "Quit ", key, keysWin);
+	add_option(" ENTER ", "Select Option ", key, keys_win);
+	add_option(" a ", "Create Deck", key, keys_win);
+	add_option(" d ", "Delete Deck", key, keys_win);
+	add_option(" o ", "Options", key, keys_win);
+	add_option(" q ", "Quit ", key, keys_win);
 
-	wrefresh(keysWin);
+	wrefresh(keys_win);
 
-	keypad(menuWin, true);
-	box(menuWin, 0, 0);
-	wattron(menuWin, A_BOLD);
-	mvwprintw(menuWin, 0, 2, "Decks");
-	wattroff(menuWin, A_BOLD);
-	whline(menuWin, ' ', 0);
-	mvwprintw(barWin, 0, 1, "nconj");
+	keypad(menu_win, true);
+	box(menu_win, 0, 0);
+	wattron(menu_win, A_BOLD);
+	mvwprintw(menu_win, 0, 2, "Decks");
+	wattroff(menu_win, A_BOLD);
+	whline(menu_win, ' ', 0);
+	mvwprintw(bar_win, 0, 1, "nconj");
 
-	wrefresh(menuWin);
-	wrefresh(keysWin);
-	wrefresh(barWin);
+	wrefresh(menu_win);
+	wrefresh(keys_win);
+	wrefresh(bar_win);
 
 	int choice;
 	int highlight = 0;
@@ -71,15 +73,15 @@ int Menu::print(std::vector<std::string> menuOptions)
 	*/
 	while (1)
 	{
-		for (int i = 0; i < menuOptions.size(); ++i)
+		for (size_t i = 0; i < deck_list.size(); ++i)
 		{
 			if (i == highlight)
-				wattron(menuWin, A_REVERSE);
+				wattron(menu_win, A_REVERSE);
 
-			mvwprintw(menuWin, i + 1, 1, "%s", menuOptions[i].c_str());
-			wattroff(menuWin, A_REVERSE);
+			mvwprintw(menu_win, i + 1, 1, "%s", deck_list[i].c_str());
+			wattroff(menu_win, A_REVERSE);
 		}
-		choice = wgetch(menuWin);
+		choice = wgetch(menu_win);
 
 		switch (choice)
 		{
@@ -92,7 +94,7 @@ int Menu::print(std::vector<std::string> menuOptions)
 		case KEY_DOWN:
 		case 'j':
 			highlight++;
-			if (highlight == menuOptions.size())
+			if (highlight == deck_list.size())
 				highlight--;
 			break;
 		default:
@@ -102,79 +104,80 @@ int Menu::print(std::vector<std::string> menuOptions)
 		if (choice == 'q')
 		{
 			return -2;
-
-			// select the deck, return index to main()
 		}
+		// select the deck, return index to main()
 		else if (choice == 10)
 		{
-			wclear(menuWin);
-			wclear(keysWin);
-			wrefresh(menuWin);
-			wrefresh(keysWin);
-			mvwprintw(barWin, 0, 1, "nconj session");
-			add_option(" ESC ", "Quit", ses, keysWin);
-			add_option(" F1 ", "Skip", ses, keysWin);
-			wrefresh(keysWin);
-			wrefresh(barWin);
-			return highlight;
+			wclear(menu_win);
+			wclear(keys_win);
+			wrefresh(menu_win);
+			wrefresh(keys_win);
+			mvwprintw(bar_win, 0, 1, "nconj session");
+			add_option(" ESC ", "Quit", ses, keys_win);
+			add_option(" F1 ", "Skip", ses, keys_win);
+			wrefresh(keys_win);
+			wrefresh(bar_win);
 
-			// add a new deck
+			return highlight;
 		}
+		// add a new deck
 		else if (choice == 'a')
 		{
 			std::string name = "";
-			int deckType = 0;
+			int deck_type = 0;
 			std::string front = "";
 			std::string back = "";
 
-			int typeHighlight = 0;
+			int type_highlight = 0;
 			int typeChoice;
 			int confirmChoice = 0;
-			std::string cardInput = "";
+			std::string card_input = "";
 			int yCur, xCur; // holds the current cursor position to simulate the
 							// backspace key for inputs.
 			std::vector<std::string> typeOptions = {"- Verb Conjugation",
 													"- Generic Flashcards"};
 
-			WINDOW *addWindow = newwin(yMax - 3, xMax - 23, 1, 21);
-			keypad(addWindow, true);
-			box(addWindow, 0, 0);
-			wbkgd(addWindow, COLOR_PAIR(1));
-			wattron(addWindow, A_BOLD);
-			mvwprintw(addWindow, 0, 2, "Create A Deck");
-			wattroff(addWindow, A_BOLD);
+			WINDOW *add_window = newwin(yMax - 3, xMax - 23, 1, 21);
+			mvwprintw(menu_win, 0, 2, "Create Deck");
 
-			wattron(addWindow, A_BOLD);
-			mvwprintw(addWindow, 2, 2, "Name:");
-			wattroff(addWindow, A_BOLD);
-			mvwprintw(addWindow, 3, 2, "___________________");
+			keypad(add_window, true);
+			box(add_window, 0, 0);
+			wbkgd(add_window, COLOR_PAIR(1));
+			wattron(add_window, A_BOLD);
+			mvwprintw(add_window, 0, 2, "Create A Deck");
+			wattroff(add_window, A_BOLD);
 
-			wattron(addWindow, A_BOLD);
-			mvwprintw(addWindow, 5, 2, "Deck Type:");
-			wattroff(addWindow, A_BOLD);
+			wattron(add_window, A_BOLD);
+			mvwprintw(add_window, 2, 2, "Name:");
+			wattroff(add_window, A_BOLD);
+			mvwprintw(add_window, 3, 2, "___________________");
 
-			wattron(addWindow, A_BOLD);
-			mvwprintw(addWindow, 9, 2, "Front Card");
-			wattroff(addWindow, A_BOLD);
-			mvwprintw(addWindow, 10, 2, "_______________");
+			wattron(add_window, A_BOLD);
+			mvwprintw(add_window, 5, 2, "Deck Type:");
+			wattroff(add_window, A_BOLD);
 
-			wattron(addWindow, A_BOLD);
-			mvwprintw(addWindow, 9, 20, "Back Card");
-			wattroff(addWindow, A_BOLD);
-			mvwprintw(addWindow, 10, 20, "_______________");
+			wattron(add_window, A_BOLD);
+			mvwprintw(add_window, 9, 2, "Front Card");
+			wattroff(add_window, A_BOLD);
+			mvwprintw(add_window, 10, 2, "_______________");
 
-			wattron(addWindow, A_BOLD);
-			mvwprintw(addWindow, 12, 2, "<Create>");
-			wattroff(addWindow, A_BOLD);
+			wattron(add_window, A_BOLD);
+			mvwprintw(add_window, 9, 20, "Back Card");
+			wattroff(add_window, A_BOLD);
+			mvwprintw(add_window, 10, 20, "_______________");
 
-			wattron(addWindow, A_BOLD);
-			mvwprintw(addWindow, 12, 20, "<Cancel>");
-			wattroff(addWindow, A_BOLD);
+			wattron(add_window, A_BOLD);
+			mvwprintw(add_window, 12, 2, "<Create>");
+			wattroff(add_window, A_BOLD);
+
+			wattron(add_window, A_BOLD);
+			mvwprintw(add_window, 12, 20, "<Cancel>");
+			wattroff(add_window, A_BOLD);
 
 			// prints the various deck choices.
-			for (int i = 0; i < typeOptions.size(); ++i)
+			for (size_t i = 0; i < typeOptions.size(); ++i)
 			{
-				mvwprintw(addWindow, i + 6, 3, "%s", typeOptions[i].c_str());
+				mvwprintw(add_window, i + 6, 3, "%s", typeOptions[i].c_str());
 			}
 
 			/* takes input from the user as they type
@@ -182,62 +185,62 @@ int Menu::print(std::vector<std::string> menuOptions)
 				   variable. */
 			curs_set(1);
 			echo();
-			wmove(addWindow, 3, 2);
-			wint_t c = wgetch(addWindow);
+			wmove(add_window, 3, 2);
+			wint_t c = wgetch(add_window);
 			while (c != '\n')
 			{
-				getyx(addWindow, yCur, xCur);
+				getyx(add_window, yCur, xCur);
 				if ((c == KEY_BACKSPACE || c == KEY_DC || c == 127) &&
 					name.size() != 0)
 				{
 					name.pop_back();
-					wprintw(addWindow, "_");
-					wmove(addWindow, yCur, xCur);
+					wprintw(add_window, "_");
+					wmove(add_window, yCur, xCur);
 				}
 				else if ((c == KEY_BACKSPACE || c == KEY_DC || c == 127 ||
 						  c == 263) &&
 						 name.size() == 0)
 				{
-					wmove(addWindow, yCur, xCur);
-					wprintw(addWindow, " ");
-					wrefresh(addWindow);
+					wmove(add_window, yCur, xCur);
+					wprintw(add_window, " ");
+					wrefresh(add_window);
 				}
 				else
 				{
 					name.push_back(c);
 				}
-				c = wgetch(addWindow);
+				c = wgetch(add_window);
 			}
 			noecho();
 			curs_set(0);
 
-			/* loop to get the choice of deck type from the user,
-				   either 'verb conjugation' or 'generic flashcards'. */
+			// loop to get the choice of deck type from the user,
+			// either 'verb conjugation' or 'generic flashcards'.
 			while (1)
 			{
-				for (int i = 0; i < typeOptions.size(); ++i)
+				for (size_t i = 0; i < typeOptions.size(); ++i)
 				{
-					if (i == typeHighlight)
-						wattron(addWindow, A_REVERSE);
+					if (i == type_highlight)
+						wattron(add_window, A_REVERSE);
 
-					mvwprintw(addWindow, i + 6, 3, "%s", typeOptions[i].c_str());
-					wattroff(addWindow, A_REVERSE);
+					mvwprintw(add_window, i + 6, 3, "%s", typeOptions[i].c_str());
+					wattroff(add_window, A_REVERSE);
 				}
 
-				typeChoice = wgetch(addWindow);
+				typeChoice = wgetch(add_window);
 				switch (typeChoice)
 				{
 				case KEY_UP:
 				case 'k':
-					typeHighlight--;
-					if (typeHighlight == -1)
-						typeHighlight = 0;
+					type_highlight--;
+					if (type_highlight == -1)
+						type_highlight = 0;
 					break;
 				case KEY_DOWN:
 				case 'j':
-					typeHighlight++;
-					if (typeHighlight == 2)
-						typeHighlight--;
+					type_highlight++;
+					if (type_highlight == 2)
+						type_highlight--;
 					break;
 				default:
 					break;
@@ -245,22 +248,20 @@ int Menu::print(std::vector<std::string> menuOptions)
 
 				if (typeChoice == 10)
 				{
-					deckType = typeHighlight;
+					deck_type = type_highlight;
 					break;
 				}
 			}
 
 			curs_set(1);
-			wmove(addWindow, 10, 2);
+			wmove(add_window, 10, 2);
 			echo();
-			wrefresh(addWindow);
+			wrefresh(add_window);
 
-			/* variables:
-				   yPtr: holds where to put the next input lines
-				   f: reads the character from the 'front' card input
-				   b: reads the character from the 'back' card input
-			*/
-
+			// variables:
+			// - yPtr: holds where to put the next input lines
+			// - f: reads the character from the 'front' card input
+			// - b: reads the character from the 'back' card input
 			int yPtr = 11;
 			wint_t f, b;
 			/* loop that constantly takes in input from the
@@ -269,131 +270,131 @@ int Menu::print(std::vector<std::string> menuOptions)
 			*/
 			while (1)
 			{
-				f = wgetch(addWindow);
+				f = wgetch(add_window);
 				while (f != '\n')
 				{
-					getyx(addWindow, yCur, xCur);
+					getyx(add_window, yCur, xCur);
 					if ((f == KEY_BACKSPACE || f == KEY_DC || f == 127) &&
-						cardInput.size() != 0)
+						card_input.size() != 0)
 					{
-						cardInput.pop_back();
-						wprintw(addWindow, "_");
-						wmove(addWindow, yCur, xCur);
+						card_input.pop_back();
+						wprintw(add_window, "_");
+						wmove(add_window, yCur, xCur);
 					}
 					else if ((f == KEY_BACKSPACE || f == KEY_DC || f == 127 ||
 							  f == 263) &&
-							 cardInput.size() == 0)
+							 card_input.size() == 0)
 					{
-						wmove(addWindow, yCur, xCur);
-						wprintw(addWindow, " ");
-						wrefresh(addWindow);
+						wmove(add_window, yCur, xCur);
+						wprintw(add_window, " ");
+						wrefresh(add_window);
 					}
 					else
 					{
-						cardInput.push_back(f);
+						card_input.push_back(f);
 					}
-					f = wgetch(addWindow);
+					f = wgetch(add_window);
 				}
 
-				if (f == '\n' && cardInput.size() == 0)
+				if (f == '\n' && card_input.size() == 0)
 					break;
 
-				std::string temp_front = cardInput;
-				cardInput.clear();
-				wmove(addWindow, yPtr - 1, 20);
+				std::string temp_front = card_input;
+				card_input.clear();
+				wmove(add_window, yPtr - 1, 20);
 
 				// takes in the input for each of the back cards.
-				b = wgetch(addWindow);
+				b = wgetch(add_window);
 				while (b != '\n')
 				{
-					getyx(addWindow, yCur, xCur);
+					getyx(add_window, yCur, xCur);
 					if ((b == KEY_BACKSPACE || b == KEY_DC || b == 127) &&
-						cardInput.size() != 0)
+						card_input.size() != 0)
 					{
-						wprintw(addWindow, "_");
-						wmove(addWindow, yCur, xCur);
-						cardInput.pop_back();
+						wprintw(add_window, "_");
+						wmove(add_window, yCur, xCur);
+						card_input.pop_back();
 					}
 					else if ((b == KEY_BACKSPACE || b == KEY_DC || b == 127 ||
 							  b == 263) &&
-							 cardInput.size() == 0)
+							 card_input.size() == 0)
 					{
-						wmove(addWindow, yCur, xCur);
-						wprintw(addWindow, " ");
-						wrefresh(addWindow);
+						wmove(add_window, yCur, xCur);
+						wprintw(add_window, " ");
+						wrefresh(add_window);
 					}
 					else
 					{
-						cardInput.push_back(b);
+						card_input.push_back(b);
 					}
-					b = wgetch(addWindow);
+					b = wgetch(add_window);
 				}
 
-				std::string temp_back = cardInput;
+				std::string temp_back = card_input;
 				temp_deck.push_back({temp_front, temp_back});
 
-				cardInput.clear();
+				card_input.clear();
 
 				/* clears the line of the <Create> button, and
 				   then recreates underneath the new bottom of
 				   card inputs. */
-				wmove(addWindow, yPtr + 1, 2);
-				wclrtoeol(addWindow);
-				box(addWindow, 0, 0);
-				wattron(addWindow, A_BOLD);
-				mvwprintw(addWindow, yPtr + 2, 2, "<Create>");
-				mvwprintw(addWindow, yPtr + 2, 20, "<Cancel>");
-				wattroff(addWindow, A_BOLD);
+				wmove(add_window, yPtr + 1, 2);
+				wclrtoeol(add_window);
+				box(add_window, 0, 0);
+				wattron(add_window, A_BOLD);
+				mvwprintw(add_window, yPtr + 2, 2, "<Create>");
+				mvwprintw(add_window, yPtr + 2, 20, "<Cancel>");
+				wattroff(add_window, A_BOLD);
 
-				mvwprintw(addWindow, yPtr, 2, "_______________");
-				mvwprintw(addWindow, yPtr, 20, "_______________");
-				wmove(addWindow, yPtr, 2);
+				mvwprintw(add_window, yPtr, 2, "_______________");
+				mvwprintw(add_window, yPtr, 20, "_______________");
+				wmove(add_window, yPtr, 2);
 				++yPtr;
 			}
 
 			curs_set(0);
 			noecho();
 
-			int buttonHighlight = 0;
-			int buttonChoice;
+			int button_highlight = 0;
+			int button_choice;
 			std::vector<std::string> buttons = {"<Create>", "<Cancel>"};
 
 			while (1)
 			{
-				for (int i = 0, x = 0; i < buttons.size(); ++i)
+				for (size_t i = 0, x = 0; i < buttons.size(); ++i)
 				{
-					wattron(addWindow, A_BOLD);
-					if (i == buttonHighlight)
-						wattron(addWindow, A_REVERSE);
+					wattron(add_window, A_BOLD);
+					if (i == button_highlight)
+						wattron(add_window, A_REVERSE);
 
-					mvwprintw(addWindow, yPtr + 1, 2 + x, "%s", buttons[i].c_str());
+					mvwprintw(add_window, yPtr + 1, 2 + x, "%s", buttons[i].c_str());
 					x += buttons[i].size() + 10;
-					wattroff(addWindow, A_BOLD);
-					wattroff(addWindow, A_REVERSE);
+					wattroff(add_window, A_BOLD);
+					wattroff(add_window, A_REVERSE);
 				}
 
-				buttonChoice = wgetch(addWindow);
-				switch (buttonChoice)
+				button_choice = wgetch(add_window);
+				switch (button_choice)
 				{
 				case KEY_LEFT:
 				case 'h':
-					buttonHighlight--;
-					if (buttonHighlight == -1)
-						buttonHighlight = 0;
+					button_highlight--;
+					if (button_highlight == -1)
+						button_highlight = 0;
 					break;
 				case KEY_RIGHT:
 				case 'l':
-					buttonHighlight++;
-					if (buttonHighlight == 2)
-						buttonHighlight--;
+					button_highlight++;
+					if (button_highlight == 2)
+						button_highlight--;
 					break;
 				default:
 					break;
 				}
 
-				if (buttonChoice == 10)
+				if (button_choice == 10)
 				{
-					confirmChoice = buttonHighlight;
+					confirmChoice = button_highlight;
 					break;
 				}
 			}
@@ -403,24 +404,24 @@ int Menu::print(std::vector<std::string> menuOptions)
 				if (!name.empty() && !front.empty() && !back.empty())
 				{
 					new_name = name;
-					wbkgd(messageWin, COLOR_PAIR(1));
-					wattron(messageWin, A_BOLD);
-					mvwprintw(messageWin, 0, 1, "Deck %s has been created.",
+					wbkgd(message_win, COLOR_PAIR(1));
+					wattron(message_win, A_BOLD);
+					mvwprintw(message_win, 0, 1, "Deck %s has been created.",
 							  name.c_str());
-					wattroff(messageWin, A_BOLD);
-					wgetch(messageWin);
+					wattroff(message_win, A_BOLD);
+					wgetch(message_win);
 					return -1;
 				}
 				else
 				{
-					wbkgd(messageWin, COLOR_PAIR(3));
-					wattron(messageWin, A_BOLD);
+					wbkgd(message_win, COLOR_PAIR(3));
+					wattron(message_win, A_BOLD);
 					mvwprintw(
-						messageWin, 0, 1,
+						message_win, 0, 1,
 						"ERROR: One or more fields left empty. Deck has not been "
 						"created.");
-					wattroff(messageWin, A_BOLD);
-					wgetch(messageWin);
+					wattroff(message_win, A_BOLD);
+					wgetch(message_win);
 					return -3;
 				}
 			}
@@ -442,23 +443,22 @@ int Menu::print(std::vector<std::string> menuOptions)
 			mvwprintw(deleteWin, 2, 2, "%s", delMessage.c_str());
 			wattron(deleteWin, A_BOLD);
 			mvwprintw(deleteWin, 2, delMessage.length() + 2, "%s",
-					  menuOptions[highlight].c_str());
+					  deck_list[highlight].c_str());
 			wattroff(deleteWin, A_BOLD);
 			mvwprintw(deleteWin, 2,
-					  delMessage.length() + menuOptions[highlight].length() + 2,
-					  "?");
+					  delMessage.length() + deck_list[highlight].length() + 2, "?");
 			wrefresh(deleteWin);
 
-			int buttonHighlight = 1;
-			int buttonChoice;
+			int button_highlight = 1;
+			int button_choice;
 			std::vector<std::string> buttons = {"<Delete>", "<Cancel>"};
 
 			while (1)
 			{
-				for (int i = 0, x = 0; i < buttons.size(); ++i)
+				for (size_t i = 0, x = 0; i < buttons.size(); ++i)
 				{
 					wattron(deleteWin, A_BOLD);
-					if (i == buttonHighlight)
+					if (i == button_highlight)
 						wattron(deleteWin, A_REVERSE);
 
 					mvwprintw(deleteWin, 4, 2 + x, "%s", buttons[i].c_str());
@@ -467,37 +467,37 @@ int Menu::print(std::vector<std::string> menuOptions)
 					wattroff(deleteWin, A_REVERSE);
 				}
 
-				buttonChoice = wgetch(deleteWin);
-				switch (buttonChoice)
+				button_choice = wgetch(deleteWin);
+				switch (button_choice)
 				{
 				case KEY_LEFT:
 				case 'h':
-					buttonHighlight--;
-					if (buttonHighlight == -1)
-						buttonHighlight = 0;
+					button_highlight--;
+					if (button_highlight == -1)
+						button_highlight = 0;
 					break;
 				case KEY_RIGHT:
 				case 'l':
-					buttonHighlight++;
-					if (buttonHighlight == 2)
-						buttonHighlight--;
+					button_highlight++;
+					if (button_highlight == 2)
+						button_highlight--;
 					break;
 				default:
 					break;
 				}
 
-				if (buttonChoice == 10)
+				if (button_choice == 10)
 				{
-					if (buttonHighlight == 0)
+					if (button_highlight == 0)
 					{
 						std::filesystem::remove(std::filesystem::path(
-							"./decks/" + menuOptions[highlight] + ".ncj"));
-						wbkgd(messageWin, COLOR_PAIR(1));
-						wattron(messageWin, A_BOLD);
-						mvwprintw(messageWin, 0, 1, "Deck '%s' has been deleted.",
-								  menuOptions[highlight].c_str());
-						wattroff(messageWin, A_BOLD);
-						wgetch(messageWin);
+							"./decks/" + deck_list[highlight] + ".ncj"));
+						wbkgd(message_win, COLOR_PAIR(1));
+						wattron(message_win, A_BOLD);
+						mvwprintw(message_win, 0, 1, "Deck '%s' has been deleted.",
+								  deck_list[highlight].c_str());
+						wattroff(message_win, A_BOLD);
+						wgetch(message_win);
 					}
 					return -3;
 				}
@@ -507,70 +507,74 @@ int Menu::print(std::vector<std::string> menuOptions)
 		}
 		else if (choice == 'o')
 		{
-			std::vector<std::string> options = {"[x] Randomise Order of Cards"};
-			int optionHighlight = 0;
-			int optionChoice;
-			WINDOW *optionsWin = newwin(yMax - 3, xMax - 23, 1, 21);
-			wbkgd(optionsWin, COLOR_PAIR(1));
-			box(optionsWin, 0, 0);
-			wattron(optionsWin, A_BOLD);
-			mvwprintw(optionsWin, 0, 2, "Options");
-			wattroff(optionsWin, A_BOLD);
-			wrefresh(optionsWin);
+			int option_highlight = 0;
+			int option_choice;
+			WINDOW *options_win = newwin(yMax - 3, xMax - 23, 1, 21);
+			wbkgd(options_win, COLOR_PAIR(1));
+			box(options_win, 0, 0);
+			wattron(options_win, A_BOLD);
+			mvwprintw(options_win, 0, 2, "Options");
+			wattroff(options_win, A_BOLD);
+			wrefresh(options_win);
 
 			while (true)
 			{
-				for (int i = 0; i < options.size(); ++i)
+				for (size_t i = 0; i < options.size(); ++i)
 				{
-					if (i == optionHighlight)
+					if (i == option_highlight)
 					{
-						wattron(optionsWin, A_REVERSE);
+						wattron(options_win, A_REVERSE);
 					}
 
-					mvwprintw(optionsWin, i + 2, 2, "%s", options[i].c_str());
-					wattroff(optionsWin, A_REVERSE);
+					std::string option_str = "";
+					option_str += enabled_options[options[i].first] == "TRUE"
+									  ? "[ x ]"
+									  : "[  ]";
+
+					mvwprintw(options_win, i + 2, 2, "%s", option_str.c_str());
+					wattroff(options_win, A_REVERSE);
 				}
 
-				optionChoice = wgetch(optionsWin);
-				switch (optionChoice)
+				option_choice = wgetch(options_win);
+				switch (option_choice)
 				{
 				case KEY_UP:
 				case 'k':
-					optionHighlight--;
-					if (optionHighlight == -1)
+					option_highlight--;
+					if (option_highlight == -1)
 					{
-						optionHighlight = 0;
+						option_highlight = 0;
 					}
 					break;
 				case KEY_DOWN:
 				case 'j':
-					optionHighlight++;
-					if (optionHighlight == options.size())
+					option_highlight++;
+					if (option_highlight == options.size())
 					{
-						optionHighlight--;
+						option_highlight--;
 					}
 					break;
 				default:
 					break;
 				}
 
-				if (optionChoice == ' ')
+				if (option_choice == ' ')
 				{
-					if (optionHighlight == 0 && options[0][1] == ' ')
+					if (option_highlight == 0 && options[0][1] == ' ')
 					{
 						options[0][1] = 'x';
 						opt_shuffle = true;
 					}
-					else if (optionHighlight == 0)
+					else if (option_highlight == 0)
 					{
 						options[0][1] = ' ';
 						opt_shuffle = false;
 					}
 				}
-				else if (optionChoice == 10)
+				else if (option_choice == 10)
 				{
-					wclear(optionsWin);
-					wrefresh(optionsWin);
+					wclear(options_win);
+					wrefresh(options_win);
 					break;
 				}
 			}

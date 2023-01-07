@@ -31,6 +31,36 @@ bool Database::init_db()
 		return false;
 	}
 
+	sql_query = "CREATE TABLE OPTIONS ("
+				"id INTEGER PRIMARY KEY, "
+				"option TEXT NOT NULL, "
+				"value TEXT NOT NULL);";
+
+	res = sqlite3_exec(db, sql_query.c_str(), nullptr, 0, nullptr);
+	*log_file << std::time(nullptr) << "; "
+			  << "Executed query " << sql_query << " res=" << res << ".\n";
+
+	if (res != SQLITE_OK)
+	{
+		*log_file << std::time(nullptr) << "; " << sqlite3_errmsg(db);
+		sqlite3_close(db);
+		return false;
+	}
+
+	sql_query = "INSERT INTO OPTIONS (option, enabled) "
+				"VALUES ('SHUFFLE', 'TRUE');";
+
+	res = sqlite3_exec(db, sql_query.c_str(), nullptr, 0, nullptr);
+	*log_file << std::time(nullptr) << "; "
+			  << "Executed query " << sql_query << " res=" << res << ".\n";
+
+	if (res != SQLITE_OK)
+	{
+		*log_file << std::time(nullptr) << "; " << sqlite3_errmsg(db);
+		sqlite3_close(db);
+		return false;
+	}
+
 	sqlite3_close(db);
 
 	*log_file << std::time(nullptr) << "; "
@@ -199,6 +229,51 @@ Deck Database::retrieve_deck(const std::string &name)
 	deck.set_notes(notes);
 
 	return deck;
+}
+
+std::map<std::string, std::string> Database::retrieve_options()
+{
+	std::map<std::string, std::string> options;
+
+	int res = sqlite3_open(db_path.c_str(), &db);
+
+	if (res != SQLITE_OK)
+	{
+		// handle error
+		*log_file << std::time(nullptr) << "; " << sqlite3_errmsg(db) << '\n';
+		sqlite3_close(db);
+	}
+
+	sqlite3_stmt *stmt;
+	std::string sql_query = "SELECT * FROM NCONJ;";
+	res = sqlite3_prepare_v2(db, sql_query.c_str(), -1, &stmt, nullptr);
+	*log_file << std::time(nullptr) << "; "
+			  << "Executed query " << sql_query << " res=" << res << ".\n";
+
+	if (res != SQLITE_OK)
+	{
+		// handle error
+		*log_file << std::time(nullptr) << "; " << sqlite3_errmsg(db) << '\n';
+		sqlite3_close(db);
+	}
+
+	while ((res = sqlite3_step(stmt)) == SQLITE_ROW)
+	{
+		options[reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1))] =
+			reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+	}
+
+	*log_file << std::time(nullptr) << "; "
+			  << "Retrieved " << options.size() << " options.\n";
+
+	if (res != SQLITE_DONE)
+	{
+		// handle error
+		*log_file << std::time(nullptr) << "; " << sqlite3_errmsg(db) << '\n';
+		sqlite3_close(db);
+	}
+
+	return options;
 }
 
 void Database::set_log_file(std::shared_ptr<std::fstream> &log_file)
