@@ -4,8 +4,7 @@ Session::Session()
 {
 }
 
-void Session::begin(std::vector<std::pair<std::string, std::string>> deck,
-					const std::string &infinitive, const bool &shuffle)
+void Session::begin(Deck deck, const bool &shuffle)
 {
 	curs_set(1);
 	echo();
@@ -23,22 +22,27 @@ void Session::begin(std::vector<std::pair<std::string, std::string>> deck,
 	int score = 0;
 	int ctr = 3; // line number where to put cursor
 	int maxy, maxx;
+	auto notes = deck.get_notes();
 	std::vector<std::string> incorrect = {};
 	getmaxyx(stdscr, maxy, maxx);
-	WINDOW *checkWin = newwin(2, maxx, 1, 0);
+	WINDOW *check_win = newwin(2, maxx, 1, 0);
 
+	// unsure how to shuffle a private member variable without making
+	// a new vector; hence the use of the 'notes' vector. somewhat
+	// inefficient.
 	if (shuffle)
 	{
 		auto seed = std::default_random_engine(
 			std::chrono::system_clock::now().time_since_epoch().count());
-		std::shuffle(deck.begin(), deck.end(), seed);
+		std::shuffle(notes.begin(), notes.end(), seed);
 	}
 
-	for (const auto &d : deck)
+	for (const auto &d : notes)
 	{
 		std::string front = d.first, back = d.second;
 		std::string input = "";
-		std::string message = front + " + _________________ (" + infinitive + ")";
+		std::string message =
+			front + " + _________________ (" + deck.get_name() + ")";
 		mvprintw(ctr, 0, "%s", message.c_str());
 		refresh();
 
@@ -91,8 +95,8 @@ void Session::begin(std::vector<std::pair<std::string, std::string>> deck,
 			break;
 		}
 
-		wclear(checkWin);
-		wattron(checkWin, A_BOLD);
+		wclear(check_win);
+		wattron(check_win, A_BOLD);
 
 		/* checks whether or not the input that the user
 		   has typed is equal to that which is expected, i.e.
@@ -101,23 +105,23 @@ void Session::begin(std::vector<std::pair<std::string, std::string>> deck,
 		if (input == back)
 		{
 			score += 1;
-			mvwprintw(checkWin, 0, maxx / 2 - 10, "Correct! (Score: %i / %lu)",
-					  score, deck.size());
-			wattroff(checkWin, A_BOLD);
+			mvwprintw(check_win, 0, maxx / 2 - 10, "Correct! (Score: %i / %lu)",
+					  score, notes.size());
+			wattroff(check_win, A_BOLD);
 		}
 		else
 		{
 			incorrect.push_back(front);
 			incorrect.push_back(back);
-			mvwprintw(checkWin, 0, maxx / 2 - 10, "Incorrect. (Score %i / %lu)",
-					  score, deck.size());
-			wattroff(checkWin, A_BOLD);
-			mvwprintw(checkWin, 1, maxx / 2 - 10, "Answer: %s. You input: %s",
+			mvwprintw(check_win, 0, maxx / 2 - 10, "Incorrect. (Score %i / %lu)",
+					  score, notes.size());
+			wattroff(check_win, A_BOLD);
+			mvwprintw(check_win, 1, maxx / 2 - 10, "Answer: %s. You input: %s",
 					  back.c_str(), input.c_str());
 		}
-		wrefresh(checkWin);
+		wrefresh(check_win);
 	}
-	results(score, deck.size(), incorrect);
+	results(score, notes.size(), incorrect);
 }
 
 void Session::results(const int &score, const int &total,
@@ -125,37 +129,37 @@ void Session::results(const int &score, const int &total,
 {
 	int resYMax, resXMax;
 	getmaxyx(stdscr, resYMax, resXMax);
-	WINDOW *resultsWin =
+	WINDOW *results_win =
 		newwin(15, resXMax / 2 - 10, resYMax / 2 - 10, resXMax / 2 - 35);
-	box(resultsWin, 0, 0);
+	box(results_win, 0, 0);
 
-	mvwprintw(resultsWin, 0, 1, "Results");
-	wattron(resultsWin, A_BOLD);
-	mvwprintw(resultsWin, 1, 2, "Session Complete!");
-	wattroff(resultsWin, A_BOLD);
+	mvwprintw(results_win, 0, 1, "Results");
+	wattron(results_win, A_BOLD);
+	mvwprintw(results_win, 1, 2, "Session Complete!");
+	wattroff(results_win, A_BOLD);
 
 	std::string message =
 		"You scored: " + std::to_string(score) + " / " + std::to_string(total);
 
-	mvwprintw(resultsWin, 2, 2, "%s", message.c_str());
+	mvwprintw(results_win, 2, 2, "%s", message.c_str());
 
 	if (incorrect.size() > 0)
 	{
-		wattron(resultsWin, A_ITALIC);
-		wattron(resultsWin, A_BOLD);
-		mvwprintw(resultsWin, 4, 2, "Incorrect: (Front <--> Back)");
-		wattroff(resultsWin, A_BOLD);
-		wattroff(resultsWin, A_ITALIC);
+		wattron(results_win, A_ITALIC);
+		wattron(results_win, A_BOLD);
+		mvwprintw(results_win, 4, 2, "Incorrect: (Front <--> Back)");
+		wattroff(results_win, A_BOLD);
+		wattroff(results_win, A_ITALIC);
 	}
 
 	for (int i = 0; i != incorrect.size(); i += 2)
 	{
-		mvwprintw(resultsWin, i + 5, 2, "%s", incorrect[i].c_str());
-		mvwprintw(resultsWin, i + 5, 20, "<-->");
-		mvwprintw(resultsWin, i + 5, 35, "%s", incorrect[i + 1].c_str());
+		mvwprintw(results_win, i + 5, 2, "%s", incorrect[i].c_str());
+		mvwprintw(results_win, i + 5, 20, "<-->");
+		mvwprintw(results_win, i + 5, 35, "%s", incorrect[i + 1].c_str());
 	}
-	wgetch(resultsWin);
-	delwin(resultsWin);
+	wgetch(results_win);
+	delwin(results_win);
 	refresh();
 }
 

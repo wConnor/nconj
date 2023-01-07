@@ -1,6 +1,8 @@
 #ifndef SESSION_HPP
 #define SESSION_HPP
 
+#include "deck.hpp"
+
 #include <algorithm>
 #include <chrono>
 #include <memory>
@@ -16,8 +18,7 @@ private:
 
 public:
 	Session();
-	void begin(std::vector<std::pair<std::string, std::string>> deck,
-			   const std::string &infinitive, const bool &shuffle);
+	void begin(Deck deck, const bool &shuffle);
 	void results(const int &score, const int &total,
 				 const std::vector<std::string> incorrect);
 	virtual ~Session();

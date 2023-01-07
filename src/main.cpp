@@ -1,4 +1,3 @@
-#include "database.hpp"
 #include "menu.hpp"
 #include "session.hpp"
 #include <iostream>
@@ -11,13 +10,13 @@ int main(int argc, char *argv[])
 {
 	(*log_file).open("log.txt",
 					 std::fstream::in | std::fstream::app); // will be changed.
-	std::unique_ptr<Database> db = std::make_unique<Database>(db_path);
+	std::shared_ptr<Database> db = std::make_shared<Database>(db_path);
+	db->set_log_file(log_file);
 
 	// checks to see whether or not the SQL database already exists. if not, then it
 	// must be the user's first time running the program.
 	if (!std::filesystem::exists(db_path))
 	{
-		db->set_log_file(log_file);
 		db->init_db();
 
 		Deck example1("être");
@@ -28,7 +27,6 @@ int main(int argc, char *argv[])
 							{"vous", "êtes"},
 							{"ils/elles", "sont"}});
 		db->save_deck(example1);
-		return 0;
 	}
 
 	std::vector<std::string> available_decks = {};
@@ -38,47 +36,32 @@ int main(int argc, char *argv[])
 	cbreak();
 	start_color();
 
-	std::unique_ptr<Menu> menu = std::make_unique<Menu>();
-	int selectedDeck;
+	Menu menu(db);
+	int selected_deck;
 	while (true)
 	{
 		available_decks.clear();
 		cbreak();
-		for (const auto &e : std::filesystem::directory_iterator("decks"))
-		{
-			std::string tempName = "";
-			std::filesystem::path tempPath = e.path();
-			tempName = tempPath.string();
+		available_decks = db->retrieve_deck_names();
+		selected_deck = menu.print(available_decks);
 
-			auto start = tempName.find_last_of('/');
-			tempName.erase(0, start + 1);
-
-			auto end = tempName.find_last_of('.');
-			tempName.erase(end, tempName.size() - 1);
-
-			available_decks.push_back(tempName);
-		}
-
-		selectedDeck = menu->print(available_decks);
 		// create new deck
-		if (selectedDeck == -1)
+		if (selected_deck == -1)
 		{
 			std::unique_ptr<Deck> tempDeck = std::make_unique<Deck>();
-			menu->new_deck(tempDeck);
-			// quit program
+			menu.new_deck(tempDeck);
 		}
-		else if (selectedDeck == -2)
+		// quit program
+		else if (selected_deck == -2)
 		{
 			break;
-			// start session with chosen deck
 		}
-		else if (selectedDeck >= 0)
+		// start session with chosen deck
+		else if (selected_deck >= 0)
 		{
-			std::unique_ptr<Deck> deck =
-				std::make_unique<Deck>(available_decks[selectedDeck]);
-			std::unique_ptr<Session> session = std::make_unique<Session>();
-			deck->read_contents();
-			session->begin(deck->get_notes(), deck->get_name(), menu->get_shuffle());
+			Deck deck = db->retrieve_deck(available_decks[selected_deck]);
+			Session session;
+			session.begin(deck, menu.get_shuffle());
 		}
 	}
 

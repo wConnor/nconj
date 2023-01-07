@@ -1,8 +1,12 @@
-#include <sqlite3.h>
-#include <fstream>
-#include <ctime>
-#include <chrono>
+#ifndef DATABASE_HPP
+#define DATABASE_HPP
+
 #include "deck.hpp"
+
+#include <chrono>
+#include <ctime>
+#include <fstream>
+#include <sqlite3.h>
 
 class Database
 {
@@ -15,8 +19,12 @@ public:
 	Database(const std::filesystem::path &db_path);
 	bool init_db();
 	bool save_deck(Deck &deck);
+	std::vector<std::string> retrieve_deck_names();
+	Deck retrieve_deck(const std::string &name);
 
 	void set_log_file(std::shared_ptr<std::fstream> &log_file);
 
 	virtual ~Database();
 };
+
+#endif

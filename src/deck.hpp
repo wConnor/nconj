@@ -3,12 +3,7 @@
 
 #include <sqlite3.h>
 
-#include <algorithm>
-#include <chrono>
-#include <fstream>
 #include <filesystem>
-#include <random>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -24,8 +19,6 @@ private:
 public:
 	Deck();
 	Deck(const std::string &name);
-	bool create(const std::vector<std::pair<std::string, std::string>> &notes);
-	void read_contents();
 
 	void set_name(const std::string &name);
 	std::string get_name();
