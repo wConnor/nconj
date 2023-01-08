@@ -6,7 +6,7 @@
 #include <chrono>
 #include <ctime>
 #include <fstream>
-#include <map>
+#include <tuple>
 #include <sqlite3.h>
 
 class Database
@@ -21,7 +21,8 @@ public:
 	bool init_db();
 	bool save_deck(Deck &deck);
 	std::vector<std::string> retrieve_deck_names();
-	std::map<std::string, std::string> retrieve_options();
+	std::vector<std::tuple<std::string, std::string, std::string>> retrieve_options();
+
 	Deck retrieve_deck(const std::string &name);
 
 	void set_log_file(std::shared_ptr<std::fstream> &log_file);

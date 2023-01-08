@@ -13,7 +13,7 @@ class Menu
 private:
 	std::vector<std::pair<std::string, std::string>> temp_deck;
 	// {option, description}
-	std::vector<std::pair<std::string, std::string>> options = { "RANDOMISE", "Randomise Order of Cards in Session" };
+	std::vector<std::tuple<std::string, std::string, std::string>> options;
 	std::string new_name = "";
 	bool opt_shuffle = true;
 	std::shared_ptr<Database> db;

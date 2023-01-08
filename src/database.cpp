@@ -34,6 +34,7 @@ bool Database::init_db()
 	sql_query = "CREATE TABLE OPTIONS ("
 				"id INTEGER PRIMARY KEY, "
 				"option TEXT NOT NULL, "
+				"description TEXT NOT NULL, "
 				"value TEXT NOT NULL);";
 
 	res = sqlite3_exec(db, sql_query.c_str(), nullptr, 0, nullptr);
@@ -47,8 +48,9 @@ bool Database::init_db()
 		return false;
 	}
 
-	sql_query = "INSERT INTO OPTIONS (option, enabled) "
-				"VALUES ('SHUFFLE', 'TRUE');";
+	sql_query =
+		"INSERT INTO OPTIONS (option, description, value) "
+		"VALUES ('SHUFFLE', 'Randomise Order of Cards in a Session', 'TRUE');";
 
 	res = sqlite3_exec(db, sql_query.c_str(), nullptr, 0, nullptr);
 	*log_file << std::time(nullptr) << "; "
@@ -231,9 +233,9 @@ Deck Database::retrieve_deck(const std::string &name)
 	return deck;
 }
 
-std::map<std::string, std::string> Database::retrieve_options()
+std::vector<std::tuple<std::string, std::string, std::string>> Database::retrieve_options()
 {
-	std::map<std::string, std::string> options;
+	std::vector<std::tuple<std::string, std::string, std::string>> options;
 
 	int res = sqlite3_open(db_path.c_str(), &db);
 
@@ -259,8 +261,9 @@ std::map<std::string, std::string> Database::retrieve_options()
 
 	while ((res = sqlite3_step(stmt)) == SQLITE_ROW)
 	{
-		options[reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1))] =
-			reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+		options.push_back({reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)),
+				reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)),
+				reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3))});
 	}
 
 	*log_file << std::time(nullptr) << "; "

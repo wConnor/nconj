@@ -7,7 +7,7 @@ Menu::Menu(std::shared_ptr<Database> db)
 
 int Menu::print(std::vector<std::string> deck_list)
 {
-	auto enabled_options = db->retrieve_options();
+	auto options = db->retrieve_options();
 
 	clear();
 	noecho();
@@ -67,16 +67,17 @@ int Menu::print(std::vector<std::string> deck_list)
 	int choice;
 	int highlight = 0;
 
-	/* main menu. loop constantly reads for user input
-		   until one of the three options are selected.
-		   '10' is the ENTER key.
-	*/
+	// main menu. loop constantly reads for user input
+	// until one of the three options are selected.
+	// '10' is the ENTER key.
 	while (1)
 	{
 		for (size_t i = 0; i < deck_list.size(); ++i)
 		{
 			if (i == highlight)
+			{
 				wattron(menu_win, A_REVERSE);
+			}
 
 			mvwprintw(menu_win, i + 1, 1, "%s", deck_list[i].c_str());
 			wattroff(menu_win, A_REVERSE);
@@ -89,13 +90,17 @@ int Menu::print(std::vector<std::string> deck_list)
 		case 'k':
 			highlight--;
 			if (highlight == -1)
+			{
 				highlight = 0;
+			}
 			break;
 		case KEY_DOWN:
 		case 'j':
 			highlight++;
 			if (highlight == deck_list.size())
+			{
 				highlight--;
+			}
 			break;
 		default:
 			break;
@@ -134,8 +139,8 @@ int Menu::print(std::vector<std::string> deck_list)
 			std::string card_input = "";
 			int yCur, xCur; // holds the current cursor position to simulate the
 							// backspace key for inputs.
-			std::vector<std::string> typeOptions = {"- Verb Conjugation",
-													"- Generic Flashcards"};
+			std::vector<std::string> type_options = {"- Verb Conjugation",
+													 "- Generic Flashcards"};
 
 			WINDOW *add_window = newwin(yMax - 3, xMax - 23, 1, 21);
 			mvwprintw(menu_win, 0, 2, "Create Deck");
@@ -175,9 +180,9 @@ int Menu::print(std::vector<std::string> deck_list)
 			wattroff(add_window, A_BOLD);
 
 			// prints the various deck choices.
-			for (size_t i = 0; i < typeOptions.size(); ++i)
+			for (size_t i = 0; i < type_options.size(); ++i)
 			{
-				mvwprintw(add_window, i + 6, 3, "%s", typeOptions[i].c_str());
+				mvwprintw(add_window, i + 6, 3, "%s", type_options[i].c_str());
 			}
 
 			/* takes input from the user as they type
@@ -218,12 +223,12 @@ int Menu::print(std::vector<std::string> deck_list)
 			// either 'verb conjugation' or 'generic flashcards'.
 			while (1)
 			{
-				for (size_t i = 0; i < typeOptions.size(); ++i)
+				for (size_t i = 0; i < type_options.size(); ++i)
 				{
 					if (i == type_highlight)
 						wattron(add_window, A_REVERSE);
 
-					mvwprintw(add_window, i + 6, 3, "%s", typeOptions[i].c_str());
+					mvwprintw(add_window, i + 6, 3, "%s", type_options[i].c_str());
 					wattroff(add_window, A_REVERSE);
 				}
 
@@ -502,9 +507,8 @@ int Menu::print(std::vector<std::string> deck_list)
 					return -3;
 				}
 			}
-
-			// options menu
 		}
+		// options menu
 		else if (choice == 'o')
 		{
 			int option_highlight = 0;
@@ -517,6 +521,8 @@ int Menu::print(std::vector<std::string> deck_list)
 			wattroff(options_win, A_BOLD);
 			wrefresh(options_win);
 
+			std::vector<std::string> option_strings;
+
 			while (true)
 			{
 				for (size_t i = 0; i < options.size(); ++i)
@@ -527,9 +533,9 @@ int Menu::print(std::vector<std::string> deck_list)
 					}
 
 					std::string option_str = "";
-					option_str += enabled_options[options[i].first] == "TRUE"
-									  ? "[ x ]"
-									  : "[  ]";
+					option_str +=
+						std::get<2>(options[i]) == "TRUE" ? "[ x ]" : "[  ]";
+					option_strings.push_back(option_str);
 
 					mvwprintw(options_win, i + 2, 2, "%s", option_str.c_str());
 					wattroff(options_win, A_REVERSE);
