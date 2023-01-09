@@ -534,7 +534,8 @@ int Menu::print(std::vector<std::string> deck_list)
 
 					std::string option_str = "";
 					option_str +=
-						std::get<2>(options[i]) == "TRUE" ? "[ x ]" : "[  ]";
+						std::get<2>(options[i]) == "TRUE" ? "[x] " : "[ ] ";
+					option_str += std::get<1>(options[i]);
 					option_strings.push_back(option_str);
 
 					mvwprintw(options_win, i + 2, 2, "%s", option_str.c_str());
@@ -566,15 +567,19 @@ int Menu::print(std::vector<std::string> deck_list)
 
 				if (option_choice == ' ')
 				{
-					if (option_highlight == 0 && options[0][1] == ' ')
+					// enable the option
+					if (option_highlight == 0 && std::get<2>(options[0]) == "FALSE")
 					{
-						options[0][1] = 'x';
+						option_strings[0][1] = 'x';
 						opt_shuffle = true;
+						std::get<2>(options[0]) = "TRUE";
 					}
+					// disable the option
 					else if (option_highlight == 0)
 					{
-						options[0][1] = ' ';
+						option_strings[0][1] = ' ';
 						opt_shuffle = false;
+						std::get<2>(options[0]) = "TRUE";
 					}
 				}
 				else if (option_choice == 10)

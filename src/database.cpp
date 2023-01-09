@@ -167,7 +167,7 @@ std::vector<std::string> Database::retrieve_deck_names()
 	while ((res = sqlite3_step(stmt)) == SQLITE_ROW)
 	{
 		decks.push_back(
-			reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
+						std::string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1))));
 	}
 
 	*log_file << std::time(nullptr) << "; "
@@ -213,8 +213,8 @@ Deck Database::retrieve_deck(const std::string &name)
 	while ((res = sqlite3_step(stmt)) == SQLITE_ROW)
 	{
 		notes.push_back(
-			{reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)),
-			 reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2))});
+						{std::string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1))),
+						 std::string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)))});
 	}
 
 	*log_file << std::time(nullptr) << "; "
@@ -247,7 +247,7 @@ std::vector<std::tuple<std::string, std::string, std::string>> Database::retriev
 	}
 
 	sqlite3_stmt *stmt;
-	std::string sql_query = "SELECT * FROM NCONJ;";
+	std::string sql_query = "SELECT * FROM OPTIONS;";
 	res = sqlite3_prepare_v2(db, sql_query.c_str(), -1, &stmt, nullptr);
 	*log_file << std::time(nullptr) << "; "
 			  << "Executed query " << sql_query << " res=" << res << ".\n";
@@ -261,9 +261,10 @@ std::vector<std::tuple<std::string, std::string, std::string>> Database::retriev
 
 	while ((res = sqlite3_step(stmt)) == SQLITE_ROW)
 	{
-		options.push_back({reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)),
-				reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)),
-				reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3))});
+		options.push_back({
+				std::string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1))),
+				std::string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2))),
+				std::string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3)))});
 	}
 
 	*log_file << std::time(nullptr) << "; "
