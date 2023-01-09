@@ -3,6 +3,7 @@
 
 #include "database.hpp"
 #include "deck.hpp"
+#include "option.hpp"
 
 #include <map>
 #include <memory>

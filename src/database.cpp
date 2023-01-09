@@ -18,7 +18,8 @@ bool Database::init_db()
 
 	std::string sql_query = "CREATE TABLE NCONJ ("
 							"id INTEGER PRIMARY KEY, "
-							"name TEXT NOT NULL);";
+							"name TEXT NOT NULL, "
+							"type TEXT NOT NULL);";
 
 	res = sqlite3_exec(db, sql_query.c_str(), nullptr, 0, nullptr);
 	*log_file << std::time(nullptr) << "; "
@@ -71,6 +72,33 @@ bool Database::init_db()
 	return true;
 }
 
+bool Database::delete_deck(const std::string &name)
+{
+	int res = sqlite3_open(db_path.c_str(), &db);
+	std::string sql_query;
+
+	if (res != SQLITE_OK)
+	{
+		*log_file << std::time(nullptr) << "; " << sqlite3_errmsg(db);
+		sqlite3_close(db);
+		return false;
+	}
+	sql_query = "DROP TABLE " + name + ";";
+
+	res = sqlite3_exec(db, sql_query.c_str(), nullptr, 0, nullptr);
+	*log_file << std::time(nullptr) << "; "
+			  << "Executed query " << sql_query << " res=" << res << ".\n";
+
+	if (res != SQLITE_OK)
+	{
+		*log_file << std::time(nullptr) << "; " << sqlite3_errmsg(db) << '\n';
+		sqlite3_close(db);
+		return false;
+	}
+
+	return true;
+}
+
 bool Database::save_deck(Deck &deck)
 {
 	int res = sqlite3_open(db_path.c_str(), &db);
@@ -117,7 +145,8 @@ bool Database::save_deck(Deck &deck)
 		}
 	}
 
-	sql_query = "INSERT INTO NCONJ (NAME) VALUES ('" + deck.get_name() + "');";
+	sql_query = "INSERT INTO NCONJ (NAME, TYPE) VALUES ('" + deck.get_name() +
+				"', '" + deck.get_type_as_str() + "');";
 	res = sqlite3_exec(db, sql_query.c_str(), nullptr, 0, nullptr);
 	*log_file << std::time(nullptr) << "; "
 			  << "Executed query " << sql_query << " res=" << res << ".\n";
@@ -134,6 +163,44 @@ bool Database::save_deck(Deck &deck)
 	*log_file << std::time(nullptr) << "; "
 			  << "Deck '" << deck.get_name()
 			  << "' successfully saved to database.\n";
+
+	return true;
+}
+
+bool Database::save_options(
+	std::vector<std::tuple<std::string, std::string, std::string>> options)
+{
+	int res = sqlite3_open(db_path.c_str(), &db);
+
+	if (res != SQLITE_OK)
+	{
+		// handle error
+		*log_file << std::time(nullptr) << "; " << sqlite3_errmsg(db) << '\n';
+		sqlite3_close(db);
+	}
+
+	for (auto &c : options)
+	{
+		std::string sql_query = "UPDATE OPTIONS "
+								"SET value = '" +
+								std::get<2>(c) +
+								"' "
+								"WHERE option = '" +
+								std::get<0>(c) + "';";
+
+		res = sqlite3_exec(db, sql_query.c_str(), nullptr, 0, nullptr);
+		*log_file << std::time(nullptr) << "; "
+				  << "Executed query " << sql_query << " res=" << res << ".\n";
+
+		if (res != SQLITE_OK)
+		{
+			// handle error
+			*log_file << std::time(nullptr) << "; " << sqlite3_errmsg(db) << '\n';
+			sqlite3_close(db);
+		}
+	}
+
+	sqlite3_close(db);
 
 	return true;
 }
@@ -166,8 +233,8 @@ std::vector<std::string> Database::retrieve_deck_names()
 
 	while ((res = sqlite3_step(stmt)) == SQLITE_ROW)
 	{
-		decks.push_back(
-						std::string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1))));
+		decks.push_back(std::string(
+			reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1))));
 	}
 
 	*log_file << std::time(nullptr) << "; "
@@ -212,9 +279,10 @@ Deck Database::retrieve_deck(const std::string &name)
 
 	while ((res = sqlite3_step(stmt)) == SQLITE_ROW)
 	{
-		notes.push_back(
-						{std::string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1))),
-						 std::string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)))});
+		notes.push_back({std::string(reinterpret_cast<const char *>(
+							 sqlite3_column_text(stmt, 1))),
+						 std::string(reinterpret_cast<const char *>(
+							 sqlite3_column_text(stmt, 2)))});
 	}
 
 	*log_file << std::time(nullptr) << "; "
@@ -233,7 +301,8 @@ Deck Database::retrieve_deck(const std::string &name)
 	return deck;
 }
 
-std::vector<std::tuple<std::string, std::string, std::string>> Database::retrieve_options()
+std::vector<std::tuple<std::string, std::string, std::string>> Database::
+	retrieve_options()
 {
 	std::vector<std::tuple<std::string, std::string, std::string>> options;
 
@@ -261,10 +330,12 @@ std::vector<std::tuple<std::string, std::string, std::string>> Database::retriev
 
 	while ((res = sqlite3_step(stmt)) == SQLITE_ROW)
 	{
-		options.push_back({
-				std::string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1))),
-				std::string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2))),
-				std::string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3)))});
+		options.push_back({std::string(reinterpret_cast<const char *>(
+							   sqlite3_column_text(stmt, 1))),
+						   std::string(reinterpret_cast<const char *>(
+							   sqlite3_column_text(stmt, 2))),
+						   std::string(reinterpret_cast<const char *>(
+							   sqlite3_column_text(stmt, 3)))});
 	}
 
 	*log_file << std::time(nullptr) << "; "

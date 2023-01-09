@@ -29,6 +29,31 @@ std::vector<std::pair<std::string, std::string>> Deck::get_notes()
 	return this->notes;
 }
 
+void Deck::set_type(Type type)
+{
+	this->type = type;
+}
+
+Type Deck::get_type()
+{
+	return this->type;
+}
+
+std::string Deck::get_type_as_str()
+{
+	switch (this->type)
+	{
+	case Type::GENERIC:
+		return "GENERIC";
+		break;
+	case Type::CONJUGATION:
+		return "CONJUGATION";
+		break;
+	}
+
+	return "";
+}
+
 Deck::~Deck()
 {
 }

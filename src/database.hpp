@@ -19,10 +19,14 @@ private:
 public:
 	Database(const std::filesystem::path &db_path);
 	bool init_db();
-	bool save_deck(Deck &deck);
+
 	std::vector<std::string> retrieve_deck_names();
+
+	bool save_options(std::vector<std::tuple<std::string, std::string, std::string>> options);
 	std::vector<std::tuple<std::string, std::string, std::string>> retrieve_options();
 
+	bool save_deck(Deck &deck);
+	bool delete_deck(const std::string &name);
 	Deck retrieve_deck(const std::string &name);
 
 	void set_log_file(std::shared_ptr<std::fstream> &log_file);

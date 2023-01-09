@@ -70,10 +70,11 @@ int Menu::print(std::vector<std::string> deck_list)
 	// main menu. loop constantly reads for user input
 	// until one of the three options are selected.
 	// '10' is the ENTER key.
-	while (1)
+	while (true)
 	{
 		for (size_t i = 0; i < deck_list.size(); ++i)
 		{
+			// check whether the current deck is highlighted by the user.
 			if (i == highlight)
 			{
 				wattron(menu_win, A_REVERSE);
@@ -111,7 +112,7 @@ int Menu::print(std::vector<std::string> deck_list)
 			return -2;
 		}
 		// select the deck, return index to main()
-		else if (choice == 10)
+		else if (choice == '\n')
 		{
 			wclear(menu_win);
 			wclear(keys_win);
@@ -134,8 +135,8 @@ int Menu::print(std::vector<std::string> deck_list)
 			std::string back = "";
 
 			int type_highlight = 0;
-			int typeChoice;
-			int confirmChoice = 0;
+			int type_choice;
+			int confirm_choice = 0;
 			std::string card_input = "";
 			int yCur, xCur; // holds the current cursor position to simulate the
 							// backspace key for inputs.
@@ -185,9 +186,9 @@ int Menu::print(std::vector<std::string> deck_list)
 				mvwprintw(add_window, i + 6, 3, "%s", type_options[i].c_str());
 			}
 
-			/* takes input from the user as they type
-				   into the 'Name:' field, assigning it to the 'name'
-				   variable. */
+			// takes input from the user as they type
+			// into the 'Name:' field, assigning it to the 'name'
+			// variable.
 			curs_set(1);
 			echo();
 			wmove(add_window, 3, 2);
@@ -221,19 +222,21 @@ int Menu::print(std::vector<std::string> deck_list)
 
 			// loop to get the choice of deck type from the user,
 			// either 'verb conjugation' or 'generic flashcards'.
-			while (1)
+			while (true)
 			{
 				for (size_t i = 0; i < type_options.size(); ++i)
 				{
 					if (i == type_highlight)
+					{
 						wattron(add_window, A_REVERSE);
+					}
 
 					mvwprintw(add_window, i + 6, 3, "%s", type_options[i].c_str());
 					wattroff(add_window, A_REVERSE);
 				}
 
-				typeChoice = wgetch(add_window);
-				switch (typeChoice)
+				type_choice = wgetch(add_window);
+				switch (type_choice)
 				{
 				case KEY_UP:
 				case 'k':
@@ -251,7 +254,7 @@ int Menu::print(std::vector<std::string> deck_list)
 					break;
 				}
 
-				if (typeChoice == 10)
+				if (type_choice == '\n')
 				{
 					deck_type = type_highlight;
 					break;
@@ -269,11 +272,11 @@ int Menu::print(std::vector<std::string> deck_list)
 			// - b: reads the character from the 'back' card input
 			int yPtr = 11;
 			wint_t f, b;
-			/* loop that constantly takes in input from the
-				   user as they add cards. terminated once a blank
-				   entry is input ('\n'); no characters before.
-			*/
-			while (1)
+
+			// loop that constantly takes in input from the
+			//	   user as they add cards. terminated once a blank
+			//	   entry is input ('\n'); no characters before.
+			while (true)
 			{
 				f = wgetch(add_window);
 				while (f != '\n')
@@ -340,9 +343,9 @@ int Menu::print(std::vector<std::string> deck_list)
 
 				card_input.clear();
 
-				/* clears the line of the <Create> button, and
-				   then recreates underneath the new bottom of
-				   card inputs. */
+				// clears the line of the <Create> button, and
+				// then recreates underneath the new bottom of
+				// card inputs.
 				wmove(add_window, yPtr + 1, 2);
 				wclrtoeol(add_window);
 				box(add_window, 0, 0);
@@ -364,13 +367,15 @@ int Menu::print(std::vector<std::string> deck_list)
 			int button_choice;
 			std::vector<std::string> buttons = {"<Create>", "<Cancel>"};
 
-			while (1)
+			while (true)
 			{
 				for (size_t i = 0, x = 0; i < buttons.size(); ++i)
 				{
 					wattron(add_window, A_BOLD);
 					if (i == button_highlight)
+					{
 						wattron(add_window, A_REVERSE);
+					}
 
 					mvwprintw(add_window, yPtr + 1, 2 + x, "%s", buttons[i].c_str());
 					x += buttons[i].size() + 10;
@@ -385,26 +390,30 @@ int Menu::print(std::vector<std::string> deck_list)
 				case 'h':
 					button_highlight--;
 					if (button_highlight == -1)
+					{
 						button_highlight = 0;
+					}
 					break;
 				case KEY_RIGHT:
 				case 'l':
 					button_highlight++;
 					if (button_highlight == 2)
+					{
 						button_highlight--;
+					}
 					break;
 				default:
 					break;
 				}
 
-				if (button_choice == 10)
+				if (button_choice == '\n')
 				{
-					confirmChoice = button_highlight;
+					confirm_choice = button_highlight;
 					break;
 				}
 			}
 
-			if (confirmChoice == 0)
+			if (confirm_choice == 0)
 			{
 				if (!name.empty() && !front.empty() && !back.empty())
 				{
@@ -435,68 +444,76 @@ int Menu::print(std::vector<std::string> deck_list)
 				return -3;
 			}
 		}
+		// delete deck
 		else if (choice == 'd')
 		{
-			WINDOW *deleteWin = newwin(yMax - 3, xMax - 23, 1, 21);
-			wbkgd(deleteWin, COLOR_PAIR(1));
-			box(deleteWin, 0, 0);
-			wattron(deleteWin, A_BOLD);
-			mvwprintw(deleteWin, 0, 2, "Delete Deck");
-			wattroff(deleteWin, A_BOLD);
+			WINDOW *delete_win = newwin(yMax - 3, xMax - 23, 1, 21);
+			wbkgd(delete_win, COLOR_PAIR(1));
+			box(delete_win, 0, 0);
+			wattron(delete_win, A_BOLD);
+			mvwprintw(delete_win, 0, 2, "Delete Deck");
+			wattroff(delete_win, A_BOLD);
 
-			std::string delMessage = "Are you sure you would like to delete ";
-			mvwprintw(deleteWin, 2, 2, "%s", delMessage.c_str());
-			wattron(deleteWin, A_BOLD);
-			mvwprintw(deleteWin, 2, delMessage.length() + 2, "%s",
+			std::string deL_message = "Are you sure you would like to delete ";
+			mvwprintw(delete_win, 2, 2, "%s", deL_message.c_str());
+			wattron(delete_win, A_BOLD);
+			mvwprintw(delete_win, 2, deL_message.length() + 2, "%s",
 					  deck_list[highlight].c_str());
-			wattroff(deleteWin, A_BOLD);
-			mvwprintw(deleteWin, 2,
-					  delMessage.length() + deck_list[highlight].length() + 2, "?");
-			wrefresh(deleteWin);
+			wattroff(delete_win, A_BOLD);
+			mvwprintw(delete_win, 2,
+					  deL_message.length() + deck_list[highlight].length() + 2, "?");
+			wrefresh(delete_win);
 
 			int button_highlight = 1;
 			int button_choice;
 			std::vector<std::string> buttons = {"<Delete>", "<Cancel>"};
 
-			while (1)
+			while (true)
 			{
 				for (size_t i = 0, x = 0; i < buttons.size(); ++i)
 				{
-					wattron(deleteWin, A_BOLD);
+					wattron(delete_win, A_BOLD);
 					if (i == button_highlight)
-						wattron(deleteWin, A_REVERSE);
+					{
+						wattron(delete_win, A_REVERSE);
+					}
 
-					mvwprintw(deleteWin, 4, 2 + x, "%s", buttons[i].c_str());
+					mvwprintw(delete_win, 4, 2 + x, "%s", buttons[i].c_str());
 					x += buttons[i].size() + 10;
-					wattroff(deleteWin, A_BOLD);
-					wattroff(deleteWin, A_REVERSE);
+					wattroff(delete_win, A_BOLD);
+					wattroff(delete_win, A_REVERSE);
 				}
 
-				button_choice = wgetch(deleteWin);
+				button_choice = wgetch(delete_win);
 				switch (button_choice)
 				{
 				case KEY_LEFT:
 				case 'h':
 					button_highlight--;
 					if (button_highlight == -1)
+					{
 						button_highlight = 0;
+					}
+
 					break;
 				case KEY_RIGHT:
 				case 'l':
 					button_highlight++;
 					if (button_highlight == 2)
+					{
 						button_highlight--;
+					}
 					break;
 				default:
 					break;
 				}
 
-				if (button_choice == 10)
+				if (button_choice == '\n')
 				{
 					if (button_highlight == 0)
 					{
-						std::filesystem::remove(std::filesystem::path(
-							"./decks/" + deck_list[highlight] + ".ncj"));
+						db->delete_deck(deck_list[highlight]);
+
 						wbkgd(message_win, COLOR_PAIR(1));
 						wattron(message_win, A_BOLD);
 						mvwprintw(message_win, 0, 1, "Deck '%s' has been deleted.",
@@ -567,23 +584,29 @@ int Menu::print(std::vector<std::string> deck_list)
 
 				if (option_choice == ' ')
 				{
-					// enable the option
-					if (option_highlight == 0 && std::get<2>(options[0]) == "FALSE")
+					// shuffle option
+					if (option_highlight == static_cast<int>(Option::RANDOMISE))
 					{
-						option_strings[0][1] = 'x';
-						opt_shuffle = true;
-						std::get<2>(options[0]) = "TRUE";
-					}
-					// disable the option
-					else if (option_highlight == 0)
-					{
-						option_strings[0][1] = ' ';
-						opt_shuffle = false;
-						std::get<2>(options[0]) = "TRUE";
+						auto current_option = std::get<2>(options[0]);
+						// enable the option, consider writing toggle_option function.
+						if (std::get<2>(options[0]) == "FALSE")
+						{
+							option_strings[0][1] = 'x';
+							opt_shuffle = true;
+							std::get<2>(options[0]) = "TRUE";
+						}
+						// disable the option
+						else
+						{
+							option_strings[0][1] = ' ';
+							opt_shuffle = false;
+							std::get<2>(options[0]) = "FALSE";
+						}
 					}
 				}
-				else if (option_choice == 10)
+				else if (option_choice == '\n')
 				{
+					db->save_options(options);
 					wclear(options_win);
 					wrefresh(options_win);
 					break;

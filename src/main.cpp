@@ -25,7 +25,19 @@ int main(int argc, char *argv[])
 							{"nous", "sommes"},
 							{"vous", "êtes"},
 							{"ils/elles", "sont"}});
+		example1.set_type(Type::CONJUGATION);
+
+		Deck example2("поехать");
+		example2.set_notes({{"я", "поеду"},
+							{"ты", "поедешь"},
+							{"он/она/оно", "поедет"},
+							{"мы", "поедем"},
+							{"вы", "поедете"},
+							{"они", "поедут"}});
+		example2.set_type(Type::CONJUGATION);
+
 		db->save_deck(example1);
+		db->save_deck(example2);
 	}
 
 	std::vector<std::string> available_decks = {};
