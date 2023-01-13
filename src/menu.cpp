@@ -26,9 +26,9 @@ int Menu::print(std::vector<std::string> deck_list)
 
 	// colour pairs for the windows
 	//     ID1 = menu_win
-	//	   ID2 = keys_win
-	//	   ID2 = bar_win
-	//	   ID1 (norm), ID3 (err) = message_win
+	//     ID2 = keys_win
+	//     ID2 = bar_win
+	//     ID1 (norm), ID3 (err) = message_win
 	init_pair(1, COLOR_CYAN, COLOR_BLACK);
 	init_pair(2, COLOR_BLACK, COLOR_CYAN);
 	init_pair(3, COLOR_RED, COLOR_BLACK);
@@ -272,6 +272,7 @@ int Menu::print(std::vector<std::string> deck_list)
 			// - b: reads the character from the 'back' card input
 			int yPtr = 11;
 			wint_t f, b;
+			std::vector<std::pair<std::string, std::string>> notes;
 
 			// loop that constantly takes in input from the
 			//	   user as they add cards. terminated once a blank
@@ -305,7 +306,9 @@ int Menu::print(std::vector<std::string> deck_list)
 				}
 
 				if (f == '\n' && card_input.size() == 0)
+				{
 					break;
+				}
 
 				std::string temp_front = card_input;
 				card_input.clear();
@@ -339,7 +342,7 @@ int Menu::print(std::vector<std::string> deck_list)
 				}
 
 				std::string temp_back = card_input;
-				temp_deck.push_back({temp_front, temp_back});
+				notes.push_back({temp_front, temp_back});
 
 				card_input.clear();
 
@@ -393,6 +396,7 @@ int Menu::print(std::vector<std::string> deck_list)
 					{
 						button_highlight = 0;
 					}
+
 					break;
 				case KEY_RIGHT:
 				case 'l':
@@ -401,6 +405,7 @@ int Menu::print(std::vector<std::string> deck_list)
 					{
 						button_highlight--;
 					}
+
 					break;
 				default:
 					break;
@@ -415,9 +420,17 @@ int Menu::print(std::vector<std::string> deck_list)
 
 			if (confirm_choice == 0)
 			{
-				if (!name.empty() && !front.empty() && !back.empty())
+				if (true) // fix later.
 				{
-					new_name = name;
+					Deck deck(name);
+					deck.set_notes(notes);
+					deck.set_type(Type::CONJUGATION); // fix later.
+
+					if (!db->save_deck(deck))
+					{
+						return -1;
+					}
+
 					wbkgd(message_win, COLOR_PAIR(1));
 					wattron(message_win, A_BOLD);
 					mvwprintw(message_win, 0, 1, "Deck %s has been created.",
@@ -454,14 +467,14 @@ int Menu::print(std::vector<std::string> deck_list)
 			mvwprintw(delete_win, 0, 2, "Delete Deck");
 			wattroff(delete_win, A_BOLD);
 
-			std::string deL_message = "Are you sure you would like to delete ";
-			mvwprintw(delete_win, 2, 2, "%s", deL_message.c_str());
+			std::string del_message = "Are you sure you would like to delete ";
+			mvwprintw(delete_win, 2, 2, "%s", del_message.c_str());
 			wattron(delete_win, A_BOLD);
-			mvwprintw(delete_win, 2, deL_message.length() + 2, "%s",
+			mvwprintw(delete_win, 2, del_message.length() + 2, "%s",
 					  deck_list[highlight].c_str());
 			wattroff(delete_win, A_BOLD);
 			mvwprintw(delete_win, 2,
-					  deL_message.length() + deck_list[highlight].length() + 2, "?");
+					  del_message.length() + deck_list[highlight].length() + 2, "?");
 			wrefresh(delete_win);
 
 			int button_highlight = 1;
@@ -485,6 +498,7 @@ int Menu::print(std::vector<std::string> deck_list)
 				}
 
 				button_choice = wgetch(delete_win);
+				// fix later; KEY_LEFT and KEY_RIGHT do not work.
 				switch (button_choice)
 				{
 				case KEY_LEFT:
@@ -503,6 +517,7 @@ int Menu::print(std::vector<std::string> deck_list)
 					{
 						button_highlight--;
 					}
+
 					break;
 				default:
 					break;
@@ -588,7 +603,8 @@ int Menu::print(std::vector<std::string> deck_list)
 					if (option_highlight == static_cast<int>(Option::RANDOMISE))
 					{
 						auto current_option = std::get<2>(options[0]);
-						// enable the option, consider writing toggle_option function.
+						// enable the option, consider writing toggle_option
+						// function.
 						if (std::get<2>(options[0]) == "FALSE")
 						{
 							option_strings[0][1] = 'x';

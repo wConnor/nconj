@@ -130,7 +130,7 @@ void Session::results(const int &score, const int &total,
 	int resYMax, resXMax;
 	getmaxyx(stdscr, resYMax, resXMax);
 	WINDOW *results_win =
-		newwin(15, resXMax / 2 - 10, resYMax / 2 - 10, resXMax / 2 - 35);
+		newwin(15, resXMax / 2, resYMax / 2 - 10, resXMax / 2 - 35);
 	box(results_win, 0, 0);
 
 	mvwprintw(results_win, 0, 1, "Results");

@@ -83,8 +83,20 @@ bool Database::delete_deck(const std::string &name)
 		sqlite3_close(db);
 		return false;
 	}
-	sql_query = "DROP TABLE " + name + ";";
 
+	sql_query = "DROP TABLE " + name + ";";
+	res = sqlite3_exec(db, sql_query.c_str(), nullptr, 0, nullptr);
+	*log_file << std::time(nullptr) << "; "
+			  << "Executed query " << sql_query << " res=" << res << ".\n";
+
+	if (res != SQLITE_OK)
+	{
+		*log_file << std::time(nullptr) << "; " << sqlite3_errmsg(db) << '\n';
+		sqlite3_close(db);
+		return false;
+	}
+
+	sql_query = "DELETE FROM NCONJ WHERE name='" + name + "';";
 	res = sqlite3_exec(db, sql_query.c_str(), nullptr, 0, nullptr);
 	*log_file << std::time(nullptr) << "; "
 			  << "Executed query " << sql_query << " res=" << res << ".\n";
@@ -133,6 +145,7 @@ bool Database::save_deck(Deck &deck)
 					" (FRONT, BACK) "
 					"VALUES ('" +
 					c.first + "', '" + c.second + "');";
+
 		res = sqlite3_exec(db, sql_query.c_str(), nullptr, 0, nullptr);
 		*log_file << std::time(nullptr) << "; "
 				  << "Executed query " << sql_query << " res=" << res << ".\n";
@@ -147,6 +160,7 @@ bool Database::save_deck(Deck &deck)
 
 	sql_query = "INSERT INTO NCONJ (NAME, TYPE) VALUES ('" + deck.get_name() +
 				"', '" + deck.get_type_as_str() + "');";
+
 	res = sqlite3_exec(db, sql_query.c_str(), nullptr, 0, nullptr);
 	*log_file << std::time(nullptr) << "; "
 			  << "Executed query " << sql_query << " res=" << res << ".\n";
@@ -220,6 +234,7 @@ std::vector<std::string> Database::retrieve_deck_names()
 
 	sqlite3_stmt *stmt;
 	std::string sql_query = "SELECT * FROM NCONJ;";
+
 	res = sqlite3_prepare_v2(db, sql_query.c_str(), -1, &stmt, nullptr);
 	*log_file << std::time(nullptr) << "; "
 			  << "Executed query " << sql_query << " res=" << res << ".\n";
@@ -286,7 +301,8 @@ Deck Database::retrieve_deck(const std::string &name)
 	}
 
 	*log_file << std::time(nullptr) << "; "
-			  << "Retrieved " << notes.size() << " notes from deck '" + name + ".\n";
+			  << "Retrieved " << notes.size()
+			  << " notes from deck '" + name + "'.\n";
 
 	if (res != SQLITE_DONE)
 	{
